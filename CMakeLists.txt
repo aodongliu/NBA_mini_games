@@ -14,8 +14,20 @@ include_directories(include)
 # Add source files
 file(GLOB SOURCES src/*.cpp)
 
+# Set paths for assets
+set(FONT_PATH "${PROJECT_SOURCE_DIR}/fonts")
+
+# Generate configuration header file
+configure_file(
+    ${CMAKE_SOURCE_DIR}/include/config.hpp.in
+    ${CMAKE_BINARY_DIR}/include/config.hpp
+)
+
 # Add executable
 add_executable(NBA_MiniGames ${SOURCES})
+
+# Add include directories for the generated config header
+target_include_directories(NBA_MiniGames PRIVATE ${CMAKE_BINARY_DIR}/include)
 
 # Link SFML libraries
 target_link_libraries(NBA_MiniGames sfml-graphics sfml-window sfml-system)

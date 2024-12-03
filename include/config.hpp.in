@@ -1,0 +1,9 @@
+#pragma once
+
+// Paths to assets
+#define FONT_PATH "@FONT_PATH@"
+
+// Version information
+#define NBA_MINI_GAMES_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
+#define NBA_MINI_GAMES_VERSION_MINOR "@PROJECT_VERSION_MINOR@"
+
