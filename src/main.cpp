@@ -20,19 +20,33 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+            
+            mainMenu.handleEvent(event);
+
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+                int choice = mainMenu.getSelectedOption();
+                if (choice == 0) {
+                    std::cout << "Starting Ranking Game...\n";
+                    // Transition to the ranking game
+                } else if (choice == 1) {
+                    std::cout << "Exiting Game...\n";
+                    window.close();
+                }
+            }
+
+            if (mainMenu.isOptionDoubleClicked()){
+                int choice = mainMenu.getSelectedOption();
+                if (choice == 0) {
+                    std::cout << "Starting Ranking Game...\n";
+                } else if (choice == 1) {
+                    std::cout << "Exiting Game...\n";
+                    window.close();
+                }
+            }
         }
         window.clear(sf::Color::Black);
         mainMenu.render(window);
         window.display();
-
-        int option = mainMenu.getSelectedOption();
-        if (option == 0) {
-            std::cout << "Play Ranking Game selected.\n";
-            // Transition to the ranking game (to be implemented)
-        } else if (option == 1) {
-            std::cout << "Quit selected.\n";
-            window.close();
-        }
     }
     
     return 0;

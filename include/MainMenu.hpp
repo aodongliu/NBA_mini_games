@@ -11,11 +11,15 @@ public:
 
     void handleEvent(const sf::Event& event);
     void render(sf::RenderWindow& window);
-
     int getSelectedOption() const;
+    bool isOptionDoubleClicked();
 
 private:
-    std::vector<sf::Text> options;
+    std::vector<sf::Text> menuOptions;
     int selectedOption;
+    sf::Color defaultColor;
+    sf::Color highlightColor;
+    sf::Clock doubleClickClock;
+    bool doubleClickFlag;
 
 };
