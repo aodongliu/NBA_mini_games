@@ -2,6 +2,7 @@
 
 // Paths to assets
 #define FONT_PATH "@FONT_PATH@"
+#define PLAYER_IMAGES_PATH "@PLAYER_IMAGES_PATH@"
 
 // Version information
 #define NBA_MINI_GAMES_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
