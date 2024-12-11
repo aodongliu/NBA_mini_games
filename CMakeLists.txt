@@ -17,6 +17,7 @@ file(GLOB SOURCES src/*.cpp)
 # Set paths for assets
 set(FONT_PATH "${PROJECT_SOURCE_DIR}/fonts")
 set(PLAYER_IMAGES_PATH "${PROJECT_SOURCE_DIR}/player_images")
+set(PLAYER_LIST_PATH "${PROJECT_SOURCE_DIR}/player_list.csv")
 
 # Generate configuration header file
 configure_file(

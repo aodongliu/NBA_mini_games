@@ -1,9 +1,13 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 
 class Player{
 public:
+    
+    Player() = default;
+
     Player(const std::string& firstName, const std::string& lastName);
 
     const std::string& getFirstName( ) const { return firstName; };
@@ -11,6 +15,8 @@ public:
     const std::string& getImagePath() const { return imagePath; };
 
     bool loadImage(sf::Texture& texture) const;
+
+    static std::vector<Player> loadPlayersFromCSV();
 
 
 private:

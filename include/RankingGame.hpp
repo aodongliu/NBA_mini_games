@@ -3,7 +3,8 @@
 #include "GameBase.hpp"
 #include "Player.hpp"
 #include <vector>
-
+#include <map>
+#include <memory>
 class RankingGame : public GameBase {
 
 public:
@@ -20,7 +21,10 @@ private:
     sf::Texture currentPlayerTexture;
 
     std::vector<Player> players;
+    std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
 
     void loadNextPlayer();
+    void displayRankings(sf::RenderWindow& window);
+    void saveRankingToCSV();
 };
