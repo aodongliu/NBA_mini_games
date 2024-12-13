@@ -23,6 +23,16 @@ private:
     std::vector<Player> players;
     std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
+    
+    std::string errorMessage;
+    sf::Clock errorClock;
+
+
+    void drawText(sf::RenderWindow& window, const std::string& content, 
+        const sf::Font& font, unsigned int size, sf::Vector2f position, sf::Color color) const;
+
+    void setInstruction(const std::string& message);
+    void setError(const std::string& message);
 
     void loadNextPlayer();
     void displayRankings(sf::RenderWindow& window);

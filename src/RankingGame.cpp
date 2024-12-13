@@ -3,8 +3,17 @@
 #include <fstream>
 #include <random>
 
+void RankingGame::setInstruction(const std::string& message) {
+    instructionText.setString(message);
+}
+
+void RankingGame::setError(const std::string& message) {
+    errorMessage = message;
+    errorClock.restart();
+}
+
 RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
-    : currentPlayerIndex(0) {
+    : currentPlayerIndex(0), errorClock() {
     
     try {
         players = Player::loadPlayersFromCSV();
@@ -21,25 +30,37 @@ RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize)
     }
 
     instructionText.setFont(font);
-    instructionText.setString("Rank this player (1-10):");
     instructionText.setCharacterSize(24);
     instructionText.setFillColor(sf::Color::White);
     instructionText.setPosition(20,20);
+    setInstruction("Rank this player (1-10):");
 
     loadNextPlayer();
-    
+}
+
+void RankingGame::drawText(sf::RenderWindow& window, const std::string& content, 
+        const sf::Font& font, unsigned int size, sf::Vector2f position, sf::Color color) const {
+
+    sf::Text text;
+    text.setFont(font);
+    text.setString(content);
+    text.setCharacterSize(size);
+    text.setFillColor(color);
+    text.setPosition(position);
+    window.draw(text);
+
 }
 
 void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size() ) {
-        std::cout << "All players ranked.\n";
+        setInstruction("Ranking complete! Press ESC to return to the menu.");
         saveRankingToCSV();
         return;
     }
 
     const Player& player = players[currentPlayerIndex];
     if (!player.loadImage(currentPlayerTexture)) {
-        std::cerr << "Failed to load image for player: " << player.getFirstName() << " " << player.getLastName() << "\n";
+        setError("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
         return;
     }
 
@@ -54,7 +75,7 @@ void RankingGame::handleEvent(const sf::Event& event){
             int rank = event.key.code - sf::Keyboard::Num0;
 
             if (rankings.count(rank)){
-                std::cerr << "Rank " << rank << " is already occupied.\n";
+                setError("Rank already taken. Choose another.");
                 return;
             }
 
@@ -64,37 +85,41 @@ void RankingGame::handleEvent(const sf::Event& event){
             if (currentPlayerIndex < players.size()) {
                 loadNextPlayer();
             } else {
-                std::cout << "Ranking complete.\n";
+                setInstruction("Ranking complete! Press ESC to return to the menu.");
                 saveRankingToCSV();
             }
+        } else if (event.key.code == sf::Keyboard::Escape) {
+            setInstruction("Returning to the menu...");
         }
     }
 }
 
 void RankingGame::render(sf::RenderWindow& window) {
+
     window.draw(instructionText); 
+ 
+    if (errorClock.getElapsedTime().asSeconds()< 3.0f && !errorMessage.empty() ) {
+        drawText(window, errorMessage, *instructionText.getFont(), 20, sf::Vector2f(20, 60), sf::Color::Red);
+    }
+
     window.draw(currentPlayerSprite);
     displayRankings(window);
 }
 
 void RankingGame::displayRankings(sf::RenderWindow& window) {
-    float x = 500;
-    float y = 50;
+    float x = window.getSize().x * 0.7f;
+    float y = window.getSize().y * 0.1f;
 
     for (int i = 1; i <= 10; ++i ) {
-        sf::Text rankText;
-        rankText.setFont(*instructionText.getFont());
-        rankText.setCharacterSize(20);
-        rankText.setFillColor(sf::Color::White);
-        rankText.setPosition(x,y);
+        std::string content = std::to_string(i) + ": ";
 
         if (rankings.count(i)){
-            rankText.setString(std::to_string(i) + ": " + rankings[i]->getFirstName() + " " + rankings[i]->getLastName());
+            content += rankings[i]->getFirstName() + " " + rankings[i]->getLastName();
         } else{
-            rankText.setString(std::to_string(i) + ": [Empty]");
+            content += "[Empty]";
         }
         
-        window.draw(rankText);
+        drawText(window, content, *instructionText.getFont(), 20, sf::Vector2f(x, y), sf::Color::White);
         y += 30;
 
     }

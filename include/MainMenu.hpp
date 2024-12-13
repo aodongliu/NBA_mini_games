@@ -11,7 +11,7 @@ public:
 
     void handleEvent(const sf::Event& event);
     void render(sf::RenderWindow& window);
-    int getSelectedOption() const;
+    int  getSelectedOption() const;
     bool isOptionDoubleClicked();
 
 private:
