@@ -69,35 +69,67 @@ void RankingGame::loadNextPlayer() {
 
 }
 
+bool RankingGame::isValidInput(const std::string& input, int& rank, std::string& errorMsg) {
+    if (input.empty()) {
+        errorMsg = "Input cannot be empty! Please enter a number between 1 and 10.";
+        return false;
+    }
+
+    for (char c : input) {
+        if (!std::isdigit(c)) {
+            errorMsg = "Invalid input! Please enter a valid number between 1 and 10.";
+            return false;
+        }
+    }
+
+    rank = std::stoi(input);
+
+    if (rank < 1 || rank > 10) {
+        errorMsg = "Invalid rank! Please enter a number between 1 and 10.";
+        return false;
+    }
+
+    errorMsg.clear();
+    return true;
+}
+
 void RankingGame::handleEvent(const sf::Event& event){
-    if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code >= sf::Keyboard::Num1 && event.key.code <= sf::Keyboard::Num9) {
-            int rank = event.key.code - sf::Keyboard::Num0;
-
-            if (rankings.count(rank)){
-                setError("Rank already taken. Choose another.");
-                return;
-            }
-
-            rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
-            currentPlayerIndex++;
-
-            if (currentPlayerIndex < players.size()) {
-                loadNextPlayer();
+    if (event.type == sf::Event::TextEntered) {
+        if (std::isdigit(event.text.unicode)) {
+            userInput += static_cast<char>(event.text.unicode);
+        } else if (event.text.unicode == '\b' && !userInput.empty() ){
+            userInput.pop_back();
+        }
+    } else if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Enter) {
+            int rank;
+            std::string errorMsg;
+            if (isValidInput(userInput, rank, errorMsg)) {
+                rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
+                currentPlayerIndex++;
+                if (currentPlayerIndex < players.size()) {
+                    loadNextPlayer();
+                } else {
+                    setInstruction("Ranking complete! Press ESC to return to the menu.");
+                    saveRankingToCSV();
+                }
+                userInput.clear();
             } else {
-                setInstruction("Ranking complete! Press ESC to return to the menu.");
-                saveRankingToCSV();
+                setError(errorMsg);
             }
         } else if (event.key.code == sf::Keyboard::Escape) {
             setInstruction("Returning to the menu...");
         }
     }
+
 }
 
 void RankingGame::render(sf::RenderWindow& window) {
 
     window.draw(instructionText); 
- 
+
+    drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, sf::Vector2f(20, 100), sf::Color::Yellow);
+
     if (errorClock.getElapsedTime().asSeconds()< 3.0f && !errorMessage.empty() ) {
         drawText(window, errorMessage, *instructionText.getFont(), 20, sf::Vector2f(20, 60), sf::Color::Red);
     }
@@ -109,6 +141,16 @@ void RankingGame::render(sf::RenderWindow& window) {
 void RankingGame::displayRankings(sf::RenderWindow& window) {
     float x = window.getSize().x * 0.7f;
     float y = window.getSize().y * 0.1f;
+    float width  = 250;                   // Fixed width
+    float height = 350; 
+
+    sf::RectangleShape background(sf::Vector2f(width, height));
+    background.setFillColor(sf::Color(50, 50, 50, 200)); 
+    background.setOutlineColor(sf::Color::White);        
+    background.setOutlineThickness(2);
+    background.setPosition(x - 20, y - 20);              
+    window.draw(background);
+
 
     for (int i = 1; i <= 10; ++i ) {
         std::string content = std::to_string(i) + ": ";

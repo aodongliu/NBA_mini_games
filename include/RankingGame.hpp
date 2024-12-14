@@ -16,6 +16,8 @@ public:
 
 private:
 
+    std::string userInput;
+
     sf::Text instructionText;
     sf::Sprite currentPlayerSprite;
     sf::Texture currentPlayerTexture;
@@ -34,7 +36,9 @@ private:
     void setInstruction(const std::string& message);
     void setError(const std::string& message);
 
+    bool isValidInput(const std::string& input, int& rank, std::string& errorMsg);
     void loadNextPlayer();
     void displayRankings(sf::RenderWindow& window);
     void saveRankingToCSV();
+    void clearRankings();
 };
