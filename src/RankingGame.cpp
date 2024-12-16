@@ -6,10 +6,12 @@
 RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
     : currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
 
+    this->windowSize = windowSize;
+
     instructionText.setFont(font);
     instructionText.setCharacterSize(24);
     instructionText.setFillColor(sf::Color::White);
-    instructionText.setPosition(20,20);
+    instructionText.setPosition(windowSize.x * 0.05f, windowSize.y * 0.05f);
 
     resetGame();
 }
@@ -46,7 +48,6 @@ void RankingGame::resetGame() {
 
     setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
     loadNextPlayer();
-
 }
 
 void RankingGame::drawText(sf::RenderWindow& window, const std::string& content, 
@@ -59,11 +60,10 @@ void RankingGame::drawText(sf::RenderWindow& window, const std::string& content,
     text.setFillColor(color);
     text.setPosition(position);
     window.draw(text);
-
 }
 
 void RankingGame::loadNextPlayer() {
-    if (currentPlayerIndex >= players.size() ) {
+    if (currentPlayerIndex >= players.size()) {
         setInstruction("Ranking complete! Press ESC to return to the menu.");
         saveRankingToCSV();
         return;
@@ -76,8 +76,15 @@ void RankingGame::loadNextPlayer() {
     }
 
     currentPlayerSprite.setTexture(currentPlayerTexture);
-    currentPlayerSprite.setPosition(400, 200);
 
+    float leftWidth = windowSize.x * 0.6f; // Left section width (60%)
+    float maxSpriteWidth = leftWidth * 0.4f; // Max width is 40% of the left section
+    float scale = maxSpriteWidth / currentPlayerTexture.getSize().x;
+    currentPlayerSprite.setScale(scale, scale);
+
+    float spriteX = (leftWidth - currentPlayerSprite.getGlobalBounds().width) / 2;
+    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) / 2;
+    currentPlayerSprite.setPosition(spriteX, spriteY);
 }
 
 bool RankingGame::isValidInput(const std::string& input, int& rank, std::string& errorMsg) {
@@ -104,7 +111,7 @@ bool RankingGame::isValidInput(const std::string& input, int& rank, std::string&
     return true;
 }
 
-void RankingGame::handleEvent(const sf::Event& event){
+void RankingGame::handleEvent(const sf::Event& event) {
     if (quitConfirmation) {
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
             setInstruction("Exiting to the menu...");
@@ -119,7 +126,7 @@ void RankingGame::handleEvent(const sf::Event& event){
     if (event.type == sf::Event::TextEntered) {
         if (std::isdigit(event.text.unicode)) {
             userInput += static_cast<char>(event.text.unicode);
-        } else if (event.text.unicode == '\b' && !userInput.empty() ){
+        } else if (event.text.unicode == '\b' && !userInput.empty()) {
             userInput.pop_back();
         }
     } else if (event.type == sf::Event::KeyPressed) {
@@ -144,17 +151,17 @@ void RankingGame::handleEvent(const sf::Event& event){
             setInstruction("Are you sure you want to quit? Press Enter to confirm, ESC to cancel.");
         }
     }
-
 }
 
 void RankingGame::render(sf::RenderWindow& window) {
-
     window.draw(instructionText); 
 
-    drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, sf::Vector2f(20, 100), sf::Color::Yellow);
+    drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, 
+             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.1f), sf::Color::Yellow);
 
-    if (errorClock.getElapsedTime().asSeconds()< 3.0f && !errorMessage.empty() ) {
-        drawText(window, errorMessage, *instructionText.getFont(), 20, sf::Vector2f(20, 60), sf::Color::Red);
+    if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
+        drawText(window, errorMessage, *instructionText.getFont(), 20, 
+                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), sf::Color::Red);
     }
 
     window.draw(currentPlayerSprite);
@@ -162,33 +169,41 @@ void RankingGame::render(sf::RenderWindow& window) {
 }
 
 void RankingGame::displayRankings(sf::RenderWindow& window) {
-    float x = window.getSize().x * 0.7f;
-    float y = window.getSize().y * 0.1f;
-    float width  = 250;                   // Fixed width
-    float height = 350; 
+    float xStart = windowSize.x * 0.6f;              // Starting X position
+    float xEnd = windowSize.x * 0.9f;                // Ending X position (90% of window width)
+    float rightWidth = xEnd - xStart;                // Dynamically calculate width
 
-    sf::RectangleShape background(sf::Vector2f(width, height));
-    background.setFillColor(sf::Color(50, 50, 50, 200)); 
-    background.setOutlineColor(sf::Color::White);        
+    float yStart = windowSize.y * 0.2f;              // Starting Y position (20%)
+    float yEnd = windowSize.y * 0.8f;                // Ending Y position (80%)
+    float rankingsHeight = yEnd - yStart;            // Total height available for rankings
+
+    // Background rectangle
+    sf::RectangleShape background(sf::Vector2f(rightWidth, rankingsHeight));
+    background.setFillColor(sf::Color(50, 50, 50, 200));
+    background.setOutlineColor(sf::Color::White);
     background.setOutlineThickness(2);
-    background.setPosition(x - 20, y - 20);              
+    background.setPosition(xStart, yStart);
     window.draw(background);
 
+    // Calculate row height dynamically based on available height
+    float rowHeight = rankingsHeight / 10.0f; // Divide by 10 rows
 
-    for (int i = 1; i <= 10; ++i ) {
+    // Draw each ranking entry
+    for (int i = 1; i <= 10; ++i) {
         std::string content = std::to_string(i) + ": ";
-
-        if (rankings.count(i)){
+        if (rankings.count(i)) {
             content += rankings[i]->getFirstName() + " " + rankings[i]->getLastName();
-        } else{
+        } else {
             content += "[Empty]";
         }
-        
-        drawText(window, content, *instructionText.getFont(), 20, sf::Vector2f(x, y), sf::Color::White);
-        y += 30;
 
+        // Calculate position for each row
+        float currentY = yStart + (i - 1) * rowHeight + rowHeight * 0.25f; // Add padding for text centering
+        drawText(window, content, *instructionText.getFont(), 20, 
+                 sf::Vector2f(xStart + 10, currentY), sf::Color::White);
     }
 }
+
 
 void RankingGame::saveRankingToCSV() {
     std::ofstream file("ranking.csv");
@@ -203,5 +218,4 @@ void RankingGame::saveRankingToCSV() {
     }
 
     std::cout << "Rankings saved to rankings.csv.\n";
-
 }
