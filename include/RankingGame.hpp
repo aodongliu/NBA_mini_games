@@ -13,8 +13,14 @@ public:
     void handleEvent(const sf::Event& event) override;
 
     void render(sf::RenderWindow& window) override;
+    
+    void resetGame();
+    
+    SubGameState subGameState;
 
 private:
+
+    bool quitConfirmation;
 
     std::string userInput;
 
@@ -40,5 +46,4 @@ private:
     void loadNextPlayer();
     void displayRankings(sf::RenderWindow& window);
     void saveRankingToCSV();
-    void clearRankings();
 };

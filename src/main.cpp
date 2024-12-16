@@ -33,6 +33,8 @@ int main() {
                             int choice = mainMenu.getSelectedOption();
                             if (choice == 0) {
                                 std::cout << "Starting Ranking Game...\n";
+                                rankingGame.resetGame();
+                                rankingGame.subGameState = SubGameState::Running;
                                 currentState = GameState::RankingGame; // Transition to RankingGame
                             } else if (choice == 1) {
                                 std::cout << "Exiting Game...\n";
@@ -45,7 +47,9 @@ int main() {
                         int choice = mainMenu.getSelectedOption();
                         if (choice == 0) {
                             std::cout << "Starting Ranking Game...\n";
+                            rankingGame.resetGame();
                             currentState = GameState::RankingGame; // Transition to RankingGame
+                            rankingGame.subGameState = SubGameState::Running;
                         } else if (choice == 1) {
                             std::cout << "Exiting Game...\n";
                             window.close();
@@ -56,11 +60,8 @@ int main() {
                 case GameState::RankingGame:
                     rankingGame.handleEvent(event);
 
-                    if (event.type == sf::Event::KeyPressed) {
-                        if (event.key.code == sf::Keyboard::Escape) {
-                            std::cout << "Returning to Main Menu...\n";
-                            currentState = GameState::MainMenu; // Transition back to MainMenu
-                        }
+                    if (rankingGame.subGameState == SubGameState::Ended) {
+                        currentState = GameState::MainMenu; // Transition back to MainMenu
                     }
                     break;
             }

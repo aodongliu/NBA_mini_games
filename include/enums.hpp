@@ -6,3 +6,8 @@ enum class GameState {
     RankingGame, // Ranking game screen
     // Future games can be added here
 };
+
+enum class SubGameState{
+    Running,
+    Ended,
+};

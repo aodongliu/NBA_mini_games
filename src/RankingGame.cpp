@@ -3,6 +3,17 @@
 #include <fstream>
 #include <random>
 
+RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
+    : currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
+
+    instructionText.setFont(font);
+    instructionText.setCharacterSize(24);
+    instructionText.setFillColor(sf::Color::White);
+    instructionText.setPosition(20,20);
+
+    resetGame();
+}
+
 void RankingGame::setInstruction(const std::string& message) {
     instructionText.setString(message);
 }
@@ -12,9 +23,13 @@ void RankingGame::setError(const std::string& message) {
     errorClock.restart();
 }
 
-RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
-    : currentPlayerIndex(0), errorClock() {
-    
+void RankingGame::resetGame() {
+    rankings.clear();
+    players.clear();
+    currentPlayerIndex = 0;
+    quitConfirmation = false;
+    subGameState = SubGameState::Running;
+
     try {
         players = Player::loadPlayersFromCSV();
         std::random_device rd;
@@ -29,13 +44,9 @@ RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize)
         std::cerr << e.what() << "\n";
     }
 
-    instructionText.setFont(font);
-    instructionText.setCharacterSize(24);
-    instructionText.setFillColor(sf::Color::White);
-    instructionText.setPosition(20,20);
-    setInstruction("Rank this player (1-10):");
-
+    setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
     loadNextPlayer();
+
 }
 
 void RankingGame::drawText(sf::RenderWindow& window, const std::string& content, 
@@ -94,6 +105,17 @@ bool RankingGame::isValidInput(const std::string& input, int& rank, std::string&
 }
 
 void RankingGame::handleEvent(const sf::Event& event){
+    if (quitConfirmation) {
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+            setInstruction("Exiting to the menu...");
+            subGameState = SubGameState::Ended;
+        } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+            quitConfirmation = false;
+            setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
+        }
+        return;
+    }
+
     if (event.type == sf::Event::TextEntered) {
         if (std::isdigit(event.text.unicode)) {
             userInput += static_cast<char>(event.text.unicode);
@@ -118,7 +140,8 @@ void RankingGame::handleEvent(const sf::Event& event){
                 setError(errorMsg);
             }
         } else if (event.key.code == sf::Keyboard::Escape) {
-            setInstruction("Returning to the menu...");
+            quitConfirmation = true;
+            setInstruction("Are you sure you want to quit? Press Enter to confirm, ESC to cancel.");
         }
     }
 
