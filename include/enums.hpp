@@ -23,6 +23,7 @@ struct ThemeConfig
     sf::Color backgroundColor;
     sf::Color instructionTextColor;
     sf::Color highlightTextColor;
+    sf::Color highlightAreaColor;
     sf::Color warningTextColor;
     sf::Color buttonColor;
     sf::Color borderColor;

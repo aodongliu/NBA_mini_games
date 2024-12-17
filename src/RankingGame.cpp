@@ -13,7 +13,7 @@ RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize)
     instructionText.setFont(font);
     instructionText.setCharacterSize(24);
     instructionText.setFillColor(themeConfig.instructionTextColor);
-    instructionText.setPosition(windowSize.x * 0.05f, windowSize.y * 0.05f);
+    instructionText.setPosition(windowSize.x * 0.05f, windowSize.y * 0.10f);
 
     resetGame();
 }
@@ -138,15 +138,19 @@ void RankingGame::handleEvent(const sf::Event& event) {
             int rank;
             std::string errorMsg;
             if (isValidInput(userInput, rank, errorMsg)) {
-                rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
-                currentPlayerIndex++;
-                if (currentPlayerIndex < players.size()) {
-                    loadNextPlayer();
+                if (rankings.count(rank)) {
+                    setError("Rank " + std::to_string(rank) + " is already occupied! Please choose another rank.");
                 } else {
-                    setInstruction("Ranking complete! Press ESC to return to the menu.");
-                    saveRankingToCSV();
+                    rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
+                    currentPlayerIndex++;
+                    if (currentPlayerIndex < players.size()) {
+                        loadNextPlayer();
+                    } else {
+                        setInstruction("Ranking complete! Press ESC to return to the menu.");
+                        saveRankingToCSV();
+                    }
+                    userInput.clear();
                 }
-                userInput.clear();
             } else {
                 setError(errorMsg);
             }
@@ -164,11 +168,11 @@ void RankingGame::render(sf::RenderWindow& window) {
     window.draw(instructionText); 
 
     drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, 
-             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.1f), themeConfig.highlightTextColor);
+             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), themeConfig.highlightTextColor);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
         drawText(window, errorMessage, *instructionText.getFont(), 20, 
-                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), themeConfig.warningTextColor);
+                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.20f), themeConfig.warningTextColor);
     }
 
     window.draw(currentPlayerSprite);
@@ -188,7 +192,7 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
 
     // Background rectangle
     sf::RectangleShape background(sf::Vector2f(rightWidth, rankingsHeight));
-    background.setFillColor(sf::Color(50, 50, 50, 200));
+    background.setFillColor(themeConfig.highlightAreaColor);
     background.setOutlineColor(themeConfig.highlightTextColor);
     background.setOutlineThickness(2);
     background.setPosition(xStart, yStart);

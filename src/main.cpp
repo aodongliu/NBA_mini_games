@@ -21,19 +21,13 @@ int main() {
     RankingGame rankingGame(font, window.getSize());
     GameState currentState = GameState::MainMenu;
     
-    
-    sf::RectangleShape themeButton;
-    sf::Text themeLabel;
-    themeManager.setupThemeButton(themeButton, themeLabel, font, window.getSize());
-
-
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            themeManager.handleThemeToggle(event, sf::Mouse::getPosition(window), themeButton);
+            themeManager.handleThemeToggle(event, sf::Mouse::getPosition(window));
 
             switch (currentState) {
                 case GameState::MainMenu:
@@ -85,7 +79,7 @@ int main() {
         } else if (currentState == GameState::RankingGame) {
             rankingGame.render(window);
         }
-        themeManager.renderThemeButton(window, themeButton, themeLabel);
+        themeManager.renderThemeButton(window);
         window.display();
     }
 
