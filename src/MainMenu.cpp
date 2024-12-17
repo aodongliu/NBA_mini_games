@@ -1,7 +1,9 @@
 #include "MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : selectedOption(0), defaultColor(sf::Color::White), highlightColor(sf::Color::Yellow), doubleClickFlag(false) {
+    : selectedOption(0), doubleClickFlag(false) {
+    
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
 
     // TODO: refactor this in a container
     std::vector<std::string> options = {"Play Ranking Game", "Quit"}; 
@@ -13,7 +15,7 @@ MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
         option.setFont(font);
         option.setString(options[i]);
         option.setCharacterSize(30);
-        option.setFillColor(i==selectedOption? highlightColor : defaultColor);
+        option.setFillColor(i==selectedOption? themeConfig.highlightTextColor : themeConfig.instructionTextColor);
         option.setPosition(windowSize.x/2 - option.getLocalBounds().width/2,yOffset);
         yOffset += 50;
         menuOptions.push_back(option);
@@ -23,6 +25,9 @@ MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
 
 
 void MainMenu::handleEvent(const sf::Event& event) {
+    
+    const ThemeConfig& themeConfig= ThemeManager::getInstance().getThemeConfig();
+    
     if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Up) {
             selectedOption = (selectedOption - 1 + menuOptions.size()) % menuOptions.size();
@@ -51,7 +56,7 @@ void MainMenu::handleEvent(const sf::Event& event) {
     }
     
     for (size_t i = 0; i < menuOptions.size(); ++i) {
-        menuOptions[i].setFillColor( i==selectedOption ? highlightColor : defaultColor);
+        menuOptions[i].setFillColor( i==selectedOption ? themeConfig.highlightTextColor : themeConfig.instructionTextColor);
     }
 }
 

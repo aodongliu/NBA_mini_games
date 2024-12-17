@@ -1,5 +1,5 @@
 #pragma once
-
+#include <ThemeManager.hpp>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
@@ -17,8 +17,6 @@ public:
 private:
     std::vector<sf::Text> menuOptions;
     int selectedOption;
-    sf::Color defaultColor;
-    sf::Color highlightColor;
     sf::Clock doubleClickClock;
     bool doubleClickFlag;
 

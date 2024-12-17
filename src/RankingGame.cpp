@@ -6,17 +6,21 @@
 RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
     : currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
 
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+
     this->windowSize = windowSize;
 
     instructionText.setFont(font);
     instructionText.setCharacterSize(24);
-    instructionText.setFillColor(sf::Color::White);
+    instructionText.setFillColor(themeConfig.instructionTextColor);
     instructionText.setPosition(windowSize.x * 0.05f, windowSize.y * 0.05f);
 
     resetGame();
 }
 
 void RankingGame::setInstruction(const std::string& message) {
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+    instructionText.setFillColor(themeConfig.instructionTextColor);
     instructionText.setString(message);
 }
 
@@ -154,14 +158,17 @@ void RankingGame::handleEvent(const sf::Event& event) {
 }
 
 void RankingGame::render(sf::RenderWindow& window) {
+    
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+    
     window.draw(instructionText); 
 
     drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, 
-             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.1f), sf::Color::Yellow);
+             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.1f), themeConfig.highlightTextColor);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
         drawText(window, errorMessage, *instructionText.getFont(), 20, 
-                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), sf::Color::Red);
+                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), themeConfig.warningTextColor);
     }
 
     window.draw(currentPlayerSprite);
@@ -169,6 +176,8 @@ void RankingGame::render(sf::RenderWindow& window) {
 }
 
 void RankingGame::displayRankings(sf::RenderWindow& window) {
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+
     float xStart = windowSize.x * 0.6f;              // Starting X position
     float xEnd = windowSize.x * 0.9f;                // Ending X position (90% of window width)
     float rightWidth = xEnd - xStart;                // Dynamically calculate width
@@ -180,7 +189,7 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
     // Background rectangle
     sf::RectangleShape background(sf::Vector2f(rightWidth, rankingsHeight));
     background.setFillColor(sf::Color(50, 50, 50, 200));
-    background.setOutlineColor(sf::Color::White);
+    background.setOutlineColor(themeConfig.highlightTextColor);
     background.setOutlineThickness(2);
     background.setPosition(xStart, yStart);
     window.draw(background);
@@ -194,13 +203,13 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
         if (rankings.count(i)) {
             content += rankings[i]->getFirstName() + " " + rankings[i]->getLastName();
         } else {
-            content += "[Empty]";
+            content += "";
         }
 
         // Calculate position for each row
         float currentY = yStart + (i - 1) * rowHeight + rowHeight * 0.25f; // Add padding for text centering
         drawText(window, content, *instructionText.getFont(), 20, 
-                 sf::Vector2f(xStart + 10, currentY), sf::Color::White);
+                 sf::Vector2f(xStart + 10, currentY), themeConfig.instructionTextColor);
     }
 }
 

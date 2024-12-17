@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <ThemeManager.hpp>
 #include <enums.hpp>
 
 class GameBase {

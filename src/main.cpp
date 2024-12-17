@@ -4,6 +4,7 @@
 #include <iostream>
 #include "config.hpp"
 #include "enums.hpp"
+#include "ThemeManager.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "NBA Mini Games");
@@ -14,15 +15,25 @@ int main() {
         return -1;
     }
 
+    ThemeManager& themeManager = ThemeManager::getInstance();
+
     MainMenu mainMenu(font, window.getSize());
     RankingGame rankingGame(font, window.getSize());
     GameState currentState = GameState::MainMenu;
+    
+    
+    sf::RectangleShape themeButton;
+    sf::Text themeLabel;
+    themeManager.setupThemeButton(themeButton, themeLabel, font, window.getSize());
+
 
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            themeManager.handleThemeToggle(event, sf::Mouse::getPosition(window), themeButton);
 
             switch (currentState) {
                 case GameState::MainMenu:
@@ -68,12 +79,13 @@ int main() {
         }
 
         // Rendering based on the current state
-        window.clear(sf::Color::Black);
+        window.clear(themeManager.getThemeConfig().backgroundColor);
         if (currentState == GameState::MainMenu) {
             mainMenu.render(window);
         } else if (currentState == GameState::RankingGame) {
             rankingGame.render(window);
         }
+        themeManager.renderThemeButton(window, themeButton, themeLabel);
         window.display();
     }
 
