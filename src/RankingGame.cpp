@@ -4,24 +4,13 @@
 #include <random>
 
 RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
-    : currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
-
-    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
-
+    : currentPlayerIndex(0), errorClock(), quitConfirmation(false), font(font) {
     this->windowSize = windowSize;
-
-    instructionText.setFont(font);
-    instructionText.setCharacterSize(24);
-    instructionText.setFillColor(themeConfig.instructionTextColor);
-    instructionText.setPosition(windowSize.x * 0.05f, windowSize.y * 0.10f);
-
     resetGame();
 }
 
 void RankingGame::setInstruction(const std::string& message) {
-    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
-    instructionText.setFillColor(themeConfig.instructionTextColor);
-    instructionText.setString(message);
+    instructionMessage = message;
 }
 
 void RankingGame::setError(const std::string& message) {
@@ -56,8 +45,9 @@ void RankingGame::resetGame() {
 
 void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
-        setInstruction("Ranking complete! Press ESC to return to the menu.");
+        setInstruction("Ranking complete! Press Enter to retry or ESC to return to the menu.");
         saveRankingToCSV();
+        subGameState = SubGameState::Complete;
         return;
     }
 
@@ -75,7 +65,7 @@ void RankingGame::loadNextPlayer() {
     currentPlayerSprite.setScale(scale, scale);
 
     float spriteX = (leftWidth - currentPlayerSprite.getGlobalBounds().width) / 2;
-    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) / 2;
+    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) / 3 * 2;
     currentPlayerSprite.setPosition(spriteX, spriteY);
 }
 
@@ -104,6 +94,20 @@ bool RankingGame::isValidInput(const std::string& input, int& rank, std::string&
 }
 
 void RankingGame::handleEvent(const sf::Event& event) {
+    // Handle events when the game has ended
+    if (subGameState == SubGameState::Complete) {
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Enter) {
+                resetGame(); // Restart the game
+                setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
+            } else if (event.key.code == sf::Keyboard::Escape) {
+                subGameState = SubGameState::Ended; // Exit to main menu
+            }
+        }
+        return; // Exit early since no further handling is needed
+    }
+
+    // Existing logic for handling normal game events
     if (quitConfirmation) {
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
             setInstruction("Exiting to the menu...");
@@ -131,14 +135,9 @@ void RankingGame::handleEvent(const sf::Event& event) {
                 } else {
                     rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
                     currentPlayerIndex++;
-                    if (currentPlayerIndex < players.size()) {
-                        loadNextPlayer();
-                    } else {
-                        setInstruction("Ranking complete! Press ESC to return to the menu.");
-                        saveRankingToCSV();
-                    }
-                    userInput.clear();
+                    loadNextPlayer();
                 }
+                userInput.clear();
             } else {
                 setError(errorMsg);
             }
@@ -153,15 +152,20 @@ void RankingGame::render(sf::RenderWindow& window) {
     
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
     
-    window.draw(instructionText); 
+    unsigned int textSize = (subGameState == SubGameState::Complete) ? 30 : 24;
+    sf::Uint32 textStyle = (subGameState == SubGameState::Complete) ? sf::Text::Bold : sf::Text::Regular;
+
+    TextManager::drawText(window, instructionMessage, font, textSize,
+                          sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.10f), 
+                          themeConfig.instructionTextColor, windowSize.x * 0.85f, textStyle);
 
     TextManager::drawText(window, "Your Input (press enter to confirm): " + userInput,
-                          *instructionText.getFont(), 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f),
+                          font, 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.30f),
                           themeConfig.highlightTextColor, windowSize.x * 0.5f);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
-        TextManager::drawText(window, errorMessage, *instructionText.getFont(), 20, 
-                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.20f), 
+        TextManager::drawText(window, errorMessage, font, 20, 
+                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.35f), 
                               themeConfig.warningTextColor, windowSize.x * 0.5f);
     }
 
@@ -202,7 +206,7 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
 
         // Calculate position for each row
         float currentY = yStart + (i - 1) * rowHeight + rowHeight * 0.25f; // Add padding for text centering
-        TextManager::drawText(window, content, *instructionText.getFont(), 20, 
+        TextManager::drawText(window, content, font, 20, 
                               sf::Vector2f(xStart + 10, currentY), themeConfig.instructionTextColor);
     }
 }

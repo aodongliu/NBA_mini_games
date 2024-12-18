@@ -20,11 +20,12 @@ public:
 
 private:
 
+    const sf::Font& font;
+
     bool quitConfirmation;
 
     std::string userInput;
 
-    sf::Text instructionText;
     sf::Sprite currentPlayerSprite;
     sf::Texture currentPlayerTexture;
 
@@ -32,6 +33,7 @@ private:
     std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
     
+    std::string instructionMessage;
     std::string errorMessage;
     sf::Clock errorClock;
 

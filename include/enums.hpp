@@ -11,6 +11,7 @@ enum class GameState {
 enum class SubGameState{
     Running,
     Ended,
+    Complete,
 };
 
 enum class Theme {

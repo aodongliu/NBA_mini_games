@@ -3,13 +3,14 @@
 
 void TextManager::drawText(sf::RenderWindow& window, const std::string& content, 
                            const sf::Font& font, unsigned int size, sf::Vector2f position,
-                           sf::Color color, float maxWidth) {
+                           sf::Color color, float maxWidth, sf::Uint32 style) {
 
     sf::Text text;
     text.setFont(font);
     text.setCharacterSize(size);
     text.setFillColor(color);
     text.setPosition(position);
+    text.setStyle(style);
     
     std::string wrappedContent = content;
     if (maxWidth > 0.0f) {
@@ -33,22 +34,27 @@ std::string TextManager::wrapText(const std::string& content, const sf::Font& fo
     tempText.setFont(font);
     tempText.setCharacterSize(size);
 
-        while (stream >> word) {
+    while (stream >> word) {
         std::string testLine = currentLine.empty() ? word : currentLine + " " + word;
         tempText.setString(testLine);
 
         if (tempText.getLocalBounds().width > maxWidth) {
-            wrapped += currentLine + "\n"; // Add current line to the result
-            currentLine = word;            // Start a new line with the word
+            // Add the current line to the wrapped result, without the overflowing word
+            wrapped += currentLine + "\n";
+            currentLine = word; // Start a new line with the word
         } else {
-            currentLine = testLine;        // Append word to current line
+            currentLine = testLine; // Append word to current line
         }
     }
 
-    wrapped += currentLine; // Add the last line
-    return wrapped;
+    // Add the last line to the wrapped result
+    if (!currentLine.empty()) {
+        wrapped += currentLine;
+    }
 
+    return wrapped;
 }
+
 
 float TextManager::getXCenter(const std::string& content, const sf::Font& font, unsigned int size, float windowWidth) {
     sf::Text tempText;
