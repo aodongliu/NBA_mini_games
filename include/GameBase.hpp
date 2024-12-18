@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <ThemeManager.hpp>
 #include <enums.hpp>
+#include <TextManager.hpp>
 
 class GameBase {
 public:

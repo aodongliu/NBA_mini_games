@@ -1,68 +1,77 @@
 #include "MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : selectedOption(0), doubleClickFlag(false) {
-    
-    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
-
-    // TODO: refactor this in a container
-    std::vector<std::string> options = {"Play Ranking Game", "Quit"}; 
-
-    float yOffset = windowSize.y/3;
-
-    for (size_t i = 0; i < options.size(); ++i){
-        sf::Text option;
-        option.setFont(font);
-        option.setString(options[i]);
-        option.setCharacterSize(30);
-        option.setFillColor(i==selectedOption? themeConfig.highlightTextColor : themeConfig.instructionTextColor);
-        option.setPosition(windowSize.x/2 - option.getLocalBounds().width/2,yOffset);
-        yOffset += 50;
-        menuOptions.push_back(option);
-    }
-
+    : font(font), windowSize(windowSize), selectedOption(0), doubleClickFlag(false) {
+    menuOptions = {"Play Ranking Game", "Quit"};
 }
 
 
 void MainMenu::handleEvent(const sf::Event& event) {
-    
-    const ThemeConfig& themeConfig= ThemeManager::getInstance().getThemeConfig();
-    
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+
+    // Handle keyboard navigation
     if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Up) {
             selectedOption = (selectedOption - 1 + menuOptions.size()) % menuOptions.size();
         } else if (event.key.code == sf::Keyboard::Down) {
             selectedOption = (selectedOption + 1) % menuOptions.size();
         }
-    } 
-    
+    }
+
+    // Handle mouse hover
     if (event.type == sf::Event::MouseMoved) {
+        sf::Vector2f mousePos(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
         for (size_t i = 0; i < menuOptions.size(); ++i) {
-            if (menuOptions[i].getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
-                selectedOption = i; 
+            sf::Text tempText;
+            tempText.setFont(font);
+            tempText.setString(menuOptions[i]);
+            tempText.setCharacterSize(30); // Match rendering size
+            tempText.setFillColor(themeConfig.instructionTextColor);
+            tempText.setPosition(
+                TextManager::getXCenter(menuOptions[i], font, 30, windowSize.x),
+                windowSize.y / 3.0f + i * 50 // Y offset for each option
+            );
+
+            if (tempText.getGlobalBounds().contains(mousePos)) {
+                selectedOption = i;
+                break;
             }
         }
     }
-    
+
+    // Handle mouse clicks
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        if (menuOptions[selectedOption].getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+        sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
+        sf::Text tempText;
+        tempText.setFont(font);
+        tempText.setString(menuOptions[selectedOption]);
+        tempText.setCharacterSize(30);
+        tempText.setFillColor(themeConfig.instructionTextColor);
+        tempText.setPosition(
+            TextManager::getXCenter(menuOptions[selectedOption], font, 30, windowSize.x),
+            windowSize.y / 3.0f + selectedOption * 50
+        );
+
+        if (tempText.getGlobalBounds().contains(mousePos)) {
             if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
-                doubleClickFlag = true;
+                doubleClickFlag = true; // Double click detected
             } else {
                 doubleClickFlag = false;
-            } 
+            }
             doubleClickClock.restart();
         }
-    }
-    
-    for (size_t i = 0; i < menuOptions.size(); ++i) {
-        menuOptions[i].setFillColor( i==selectedOption ? themeConfig.highlightTextColor : themeConfig.instructionTextColor);
     }
 }
 
 void MainMenu::render(sf::RenderWindow& window) {
-    for (const auto& option : menuOptions) {
-        window.draw(option);
+    const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
+    float yOffset = windowSize.y / 3.0f;
+
+    for (size_t i = 0; i < menuOptions.size(); ++i) {
+        sf::Color color = (i == selectedOption) ? theme.highlightTextColor : theme.instructionTextColor;
+        float xCenter = TextManager::getXCenter(menuOptions[i], font, 30, windowSize.x);
+        TextManager::drawText(window, menuOptions[i], font, 30, sf::Vector2f(xCenter, yOffset), color);
+        yOffset += 50;
     }
 }
 

@@ -54,18 +54,6 @@ void RankingGame::resetGame() {
     loadNextPlayer();
 }
 
-void RankingGame::drawText(sf::RenderWindow& window, const std::string& content, 
-        const sf::Font& font, unsigned int size, sf::Vector2f position, sf::Color color) const {
-
-    sf::Text text;
-    text.setFont(font);
-    text.setString(content);
-    text.setCharacterSize(size);
-    text.setFillColor(color);
-    text.setPosition(position);
-    window.draw(text);
-}
-
 void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
         setInstruction("Ranking complete! Press ESC to return to the menu.");
@@ -167,12 +155,14 @@ void RankingGame::render(sf::RenderWindow& window) {
     
     window.draw(instructionText); 
 
-    drawText(window, "Your Input (press enter to confirm): " + userInput, *instructionText.getFont(), 20, 
-             sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f), themeConfig.highlightTextColor);
+    TextManager::drawText(window, "Your Input (press enter to confirm): " + userInput,
+                          *instructionText.getFont(), 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.15f),
+                          themeConfig.highlightTextColor, windowSize.x * 0.5f);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
-        drawText(window, errorMessage, *instructionText.getFont(), 20, 
-                 sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.20f), themeConfig.warningTextColor);
+        TextManager::drawText(window, errorMessage, *instructionText.getFont(), 20, 
+                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.20f), 
+                              themeConfig.warningTextColor, windowSize.x * 0.5f);
     }
 
     window.draw(currentPlayerSprite);
@@ -186,7 +176,7 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
     float xEnd = windowSize.x * 0.9f;                // Ending X position (90% of window width)
     float rightWidth = xEnd - xStart;                // Dynamically calculate width
 
-    float yStart = windowSize.y * 0.2f;              // Starting Y position (20%)
+    float yStart = windowSize.y * 0.3f;             // Starting Y position (30%)
     float yEnd = windowSize.y * 0.8f;                // Ending Y position (80%)
     float rankingsHeight = yEnd - yStart;            // Total height available for rankings
 
@@ -212,8 +202,8 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
 
         // Calculate position for each row
         float currentY = yStart + (i - 1) * rowHeight + rowHeight * 0.25f; // Add padding for text centering
-        drawText(window, content, *instructionText.getFont(), 20, 
-                 sf::Vector2f(xStart + 10, currentY), themeConfig.instructionTextColor);
+        TextManager::drawText(window, content, *instructionText.getFont(), 20, 
+                              sf::Vector2f(xStart + 10, currentY), themeConfig.instructionTextColor);
     }
 }
 

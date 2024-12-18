@@ -1,6 +1,7 @@
 #pragma once
 #include <ThemeManager.hpp>
 #include <SFML/Graphics.hpp>
+#include <TextManager.hpp>
 #include <vector>
 #include <string>
 
@@ -15,9 +16,12 @@ public:
     bool isOptionDoubleClicked();
 
 private:
-    std::vector<sf::Text> menuOptions;
+    std::vector<std::string> menuOptions;
     int selectedOption;
     sf::Clock doubleClickClock;
     bool doubleClickFlag;
+
+    const sf::Font& font;
+    sf::Vector2u windowSize;
 
 };

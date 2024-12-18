@@ -35,10 +35,6 @@ private:
     std::string errorMessage;
     sf::Clock errorClock;
 
-
-    void drawText(sf::RenderWindow& window, const std::string& content, 
-        const sf::Font& font, unsigned int size, sf::Vector2f position, sf::Color color) const;
-
     void setInstruction(const std::string& message);
     void setError(const std::string& message);
 
