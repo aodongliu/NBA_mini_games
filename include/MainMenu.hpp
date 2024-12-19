@@ -10,6 +10,7 @@ class MainMenu {
 public:
     MainMenu(const sf::Font& font, const sf::Vector2u& windowSize);
 
+    void reset();
     void handleEvent(const sf::Event& event, sf::RenderWindow& window);
     void render(sf::RenderWindow& window);
     std::optional<int> handleAction();

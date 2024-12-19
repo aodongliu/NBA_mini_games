@@ -43,13 +43,15 @@ bool Button::isClicked(const sf::Event& event, const sf::Vector2i& mousePos) con
 }
 
 bool Button::isDoubleClicked(const sf::Event& event, const sf::Vector2i& mousePos) {
-    if (isClicked(event, mousePos)) {
-        if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
-            doubleClickFlag = true;  // Double click detected
-        } else {
-            doubleClickFlag = false; // Single click
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+        if (buttonShape.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+            if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
+                doubleClickFlag = true; // Double click detected
+            } else {
+                doubleClickFlag = false; // Single click
+            }
+            doubleClickClock.restart();
         }
-        doubleClickClock.restart(); // Restart the timer for the next click
     }
     return doubleClickFlag;
 }

@@ -37,7 +37,6 @@ int main() {
                             case 0:
                                 std::cout << "Starting Ranking Game...\n";
                                 rankingGame.resetGame();
-                                rankingGame.subGameState = SubGameState::Running;
                                 currentState = GameState::RankingGame;
                                 break;
 
@@ -54,6 +53,7 @@ int main() {
 
                     if (rankingGame.subGameState == SubGameState::Ended) {
                         currentState = GameState::MainMenu; // Transition back to MainMenu
+                        mainMenu.reset();
                     }
                     break;
             }

@@ -78,3 +78,12 @@ std::optional<int> MainMenu::handleAction() {
     }
     return std::nullopt; // No action triggered
 }
+
+void MainMenu::reset() {
+    selectedOption = 0;
+    selectedOptionTriggered = false; 
+    for (auto& button : menuButtons) {
+        button.resetDoubleClickFlag();
+    }
+
+}
