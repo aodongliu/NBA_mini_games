@@ -62,7 +62,7 @@ void RankingGame::loadNextPlayer() {
     currentPlayerSprite.setTexture(currentPlayerTexture);
 
     float leftWidth = windowSize.x * 0.6f; // Left section width (60%)
-    float maxSpriteWidth = leftWidth * 0.4f; // Max width is 40% of the left section
+    float maxSpriteWidth = leftWidth * 0.3f; // Max width is 30% of the left section
     float scale = maxSpriteWidth / currentPlayerTexture.getSize().x;
     currentPlayerSprite.setScale(scale, scale);
 
@@ -166,8 +166,8 @@ void RankingGame::render(sf::RenderWindow& window) {
                           themeConfig.highlightTextColor, windowSize.x * 0.5f);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
-        TextManager::drawText(window, errorMessage, font, 20, 
-                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.30f), 
+        TextManager::drawText(window, errorMessage, font, 17, 
+                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.325f), 
                               themeConfig.warningTextColor, windowSize.x * 0.5f);
     }
 

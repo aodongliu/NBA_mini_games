@@ -9,25 +9,52 @@ ThemeManager::ThemeManager()
         return;
     }
 
-    lightThemeConfig.backgroundColor      = Colors::creamWhite;
-    lightThemeConfig.instructionTextColor = Colors::purple;
-    lightThemeConfig.highlightTextColor   = Colors::orange;
-    lightThemeConfig.highlightAreaColor   = Colors::lightGreenT;
-    lightThemeConfig.warningTextColor     = Colors::red; 
-    lightThemeConfig.buttonColor          = Colors::lightGreenT;
-    lightThemeConfig.borderColor          = sf::Color::Black;
-    
-    darkThemeConfig.backgroundColor       = Colors::paleBlack; 
-    darkThemeConfig.instructionTextColor  = Colors::lightGrey; 
-    darkThemeConfig.highlightTextColor    = Colors::darkYellow;  
-    darkThemeConfig.highlightAreaColor    = Colors::darkGreenT;
-    darkThemeConfig.warningTextColor      = Colors::red;
-    darkThemeConfig.buttonColor           = Colors::darkGreenT;
-    darkThemeConfig.borderColor           = sf::Color::White;
+    defineLightThemeConfig();
+    defineDarkThemeConfig();
 
     applyTheme(currentTheme);
     setupThemeButtons(sf::Vector2u(800, 600));
 
+}
+
+void ThemeManager::defineLightThemeConfig() {
+    // Set 1 (12/17/2024):
+    // lightThemeConfig.backgroundColor      = Colors::creamWhite;
+    // lightThemeConfig.instructionTextColor = Colors::purple;
+    // lightThemeConfig.highlightTextColor   = Colors::orange;
+    // lightThemeConfig.highlightAreaColor   = Colors::lightGreenT;
+    // lightThemeConfig.warningTextColor     = Colors::red; 
+    // lightThemeConfig.buttonColor          = Colors::lightGreenT;
+    // lightThemeConfig.borderColor          = sf::Color::Black;
+
+    // Set 2 (12/18/2024):
+    lightThemeConfig.backgroundColor      = Colors::silverWhite;
+    lightThemeConfig.instructionTextColor = Colors::walnut;
+    lightThemeConfig.highlightTextColor   = Colors::starBlue;
+    lightThemeConfig.highlightAreaColor   = Colors::lightGreenT;
+    lightThemeConfig.warningTextColor     = Colors::rubyBrick; 
+    lightThemeConfig.buttonColor          = Colors::lightGreenT;
+    lightThemeConfig.borderColor          = sf::Color::Black;
+}
+
+void ThemeManager::defineDarkThemeConfig() {
+    // Set 1 (12/17/2024):
+    // darkThemeConfig.backgroundColor       = Colors::paleBlack; 
+    // darkThemeConfig.instructionTextColor  = Colors::lightGrey; 
+    // darkThemeConfig.highlightTextColor    = Colors::darkYellow;  
+    // darkThemeConfig.highlightAreaColor    = Colors::darkGreenT;
+    // darkThemeConfig.warningTextColor      = Colors::red;
+    // darkThemeConfig.buttonColor           = Colors::darkGreenT;
+    // darkThemeConfig.borderColor           = sf::Color::White;
+
+    // Set 2 (12/18/2024):
+    darkThemeConfig.backgroundColor       = Colors::midnight; 
+    darkThemeConfig.instructionTextColor  = Colors::lightGrey; 
+    darkThemeConfig.highlightTextColor    = Colors::tan;  
+    darkThemeConfig.highlightAreaColor    = Colors::retroNavyT;
+    darkThemeConfig.warningTextColor      = Colors::carnation;
+    darkThemeConfig.buttonColor           = Colors::retroNavyT;
+    darkThemeConfig.borderColor           = sf::Color::White;
 }
 
 void ThemeManager::updateButtonStyles() {
@@ -73,20 +100,8 @@ void ThemeManager::setupThemeButtons(const sf::Vector2u& windowSize) {
 
 void ThemeManager::applyTheme(Theme theme) {
     currentTheme = theme;
-    if (theme == Theme::Light) {
-        setLightTheme();
-    } else {
-        setDarkTheme();
-    }
+    themeConfig = (theme == Theme::Light) ? lightThemeConfig : darkThemeConfig;
     setupThemeButtons(sf::Vector2u(800, 600));
-}
-
-void ThemeManager::setLightTheme() {
-    themeConfig = lightThemeConfig;
-}
-
-void ThemeManager::setDarkTheme() {
-    themeConfig = darkThemeConfig;
 }
 
 void ThemeManager::handleThemeToggle(const sf::Event& event, const sf::Vector2i& mousePos) {

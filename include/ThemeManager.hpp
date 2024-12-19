@@ -32,8 +32,8 @@ private:
     sf::Text lightLabel, darkLabel;
     sf::Font font;
 
-    void setLightTheme();
-    void setDarkTheme();
+    void defineLightThemeConfig();
+    void defineDarkThemeConfig();
     void setupThemeButtons(const sf::Vector2u& windowSize);
     void updateButtonStyles();
 
