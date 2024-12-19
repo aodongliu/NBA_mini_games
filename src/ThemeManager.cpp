@@ -1,23 +1,19 @@
 #include "ThemeManager.hpp"
 
-
-ThemeManager::ThemeManager()
-    : currentTheme(Theme::Dark) {
-
-    if (!font.loadFromFile(FONT_PATH "/Arial.ttf")) {
-        std::cerr << "Error: Failed to load font.\n";
-        return;
-    }
-
-    defineLightThemeConfig();
-    defineDarkThemeConfig();
-
-    applyTheme(currentTheme);
-    setupThemeButtons(font, sf::Vector2u(800, 600));
-
+// Singleton access
+ThemeManager& ThemeManager::getInstance() {
+    static ThemeManager instance;
+    return instance;
 }
 
-void ThemeManager::defineLightThemeConfig() {
+ThemeManager::ThemeManager()
+    : currentTheme(Theme::Light) {
+    setLightThemeConfig();
+    setDarkThemeConfig();
+    toggleTheme(currentTheme);
+}
+
+void ThemeManager::setLightThemeConfig() {
     // Set 1 (12/17/2024):
     // lightThemeConfig.backgroundColor      = Colors::creamWhite;
     // lightThemeConfig.instructionTextColor = Colors::purple;
@@ -37,7 +33,7 @@ void ThemeManager::defineLightThemeConfig() {
     lightThemeConfig.borderColor          = sf::Color::Black;
 }
 
-void ThemeManager::defineDarkThemeConfig() {
+void ThemeManager::setDarkThemeConfig() {
     // Set 1 (12/17/2024):
     // darkThemeConfig.backgroundColor       = Colors::paleBlack; 
     // darkThemeConfig.instructionTextColor  = Colors::lightGrey; 
@@ -57,57 +53,7 @@ void ThemeManager::defineDarkThemeConfig() {
     darkThemeConfig.borderColor           = sf::Color::White;
 }
 
-void ThemeManager::setupThemeButtons(const sf::Font& font, const sf::Vector2u& windowSize) {
-    float buttonWidth = 80;
-    float buttonHeight = 30;
-    float padding = 5;
-    float topMargin = 10;
-
-    // Create light button
-    lightButton = Button(font, "Light", 
-                         sf::Vector2f(windowSize.x - 2 * (buttonWidth + padding), topMargin), 
-                         sf::Vector2f(buttonWidth, buttonHeight), 
-                         lightThemeConfig.buttonColor, lightThemeConfig.instructionTextColor);
-
-    // Create dark button
-    darkButton = Button(font, "Dark", 
-                        sf::Vector2f(windowSize.x - (buttonWidth + padding), topMargin), 
-                        sf::Vector2f(buttonWidth, buttonHeight), 
-                        darkThemeConfig.buttonColor, darkThemeConfig.instructionTextColor);
-}
-
-void ThemeManager::applyTheme(Theme theme) {
+void ThemeManager::toggleTheme(Theme theme) {
     currentTheme = theme;
     themeConfig = (theme == Theme::Light) ? lightThemeConfig : darkThemeConfig;
-
-    // Update button themes to match the new theme
-    lightButton.setTheme(lightThemeConfig.buttonColor, lightThemeConfig.instructionTextColor, themeConfig.borderColor);
-    darkButton.setTheme(darkThemeConfig.buttonColor, darkThemeConfig.instructionTextColor, themeConfig.borderColor);
-}
-
-void ThemeManager::handleThemeToggle(const sf::Event& event, const sf::Vector2i& mousePos) {
-    // Hover effect handling
-    if (lightButton.isHovered(mousePos)) {
-        lightButton.setHighlightTheme(lightThemeConfig);
-    } else {
-        lightButton.setDefaultTheme(lightThemeConfig);
-    }
-
-    if (darkButton.isHovered(mousePos)) {
-        darkButton.setHighlightTheme(darkThemeConfig);
-    } else {
-        darkButton.setDefaultTheme(darkThemeConfig);
-    }
-
-    // Handle button clicks
-    if (lightButton.isClicked(event, mousePos)) {
-        applyTheme(Theme::Light);
-    } else if (darkButton.isClicked(event, mousePos)) {
-        applyTheme(Theme::Dark);
-    }
-}
-
-void ThemeManager::renderThemeButton(sf::RenderWindow& window) {
-    lightButton.render(window);
-    darkButton.render(window);
 }

@@ -5,39 +5,28 @@
 #include <enums.hpp>
 #include "config.hpp"
 #include <iostream>
-#include <Button.hpp>
 
+// Singleton class that handles theme colors
 class ThemeManager {
 public:
-    static ThemeManager& getInstance() {
-        static ThemeManager instance;
-        return instance;
-    }
-
-    void applyTheme(Theme theme);
-    Theme getCurrentTheme() const { return currentTheme; }
+    static ThemeManager& getInstance();
+    
     const ThemeConfig& getThemeConfig() const { return themeConfig; }
-
-    void handleThemeToggle(const sf::Event& event, const sf::Vector2i& mousePos);
-    void renderThemeButton(sf::RenderWindow& window);
+    const ThemeConfig& getLightThemeConfig() const { return lightThemeConfig; }
+    const ThemeConfig& getDarkThemeConfig() const { return darkThemeConfig; }
+    void toggleTheme(Theme theme);
 
 private:
     ThemeManager();
     ThemeConfig lightThemeConfig;
     ThemeConfig darkThemeConfig;
-    
-    Theme currentTheme;
     ThemeConfig themeConfig;
+    Theme currentTheme;
 
-    Button lightButton, darkButton;
-    sf::Text lightLabel, darkLabel;
-    sf::Font font;
+    void setLightThemeConfig();
+    void setDarkThemeConfig();
 
-    void defineLightThemeConfig();
-    void defineDarkThemeConfig();
-    void setupThemeButtons(const sf::Font& font, const sf::Vector2u& windowSize);
-
+    // Disable copy and assignment
     ThemeManager(const ThemeManager&) = delete;
     ThemeManager& operator=(const ThemeManager&) = delete;
-    
 };

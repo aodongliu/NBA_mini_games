@@ -4,6 +4,7 @@
 #include <iostream>
 #include "config.hpp"
 #include "enums.hpp"
+#include "GlobalUI.hpp"
 #include "ThemeManager.hpp"
 
 int main() {
@@ -15,8 +16,7 @@ int main() {
         return -1;
     }
 
-    ThemeManager& themeManager = ThemeManager::getInstance();
-
+    GlobalUI globalUI(font, window.getSize());
     MainMenu mainMenu(font, window.getSize());
     RankingGame rankingGame(font, window.getSize());
     GameState currentState = GameState::MainMenu;
@@ -27,7 +27,7 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            themeManager.handleThemeToggle(event, sf::Mouse::getPosition(window));
+            globalUI.handleEvent(event, window);
 
             switch (currentState) {
                 case GameState::MainMenu:
@@ -60,13 +60,13 @@ int main() {
         }
 
         // Rendering based on the current state
-        window.clear(themeManager.getThemeConfig().backgroundColor);
+        window.clear(ThemeManager::getInstance().getThemeConfig().backgroundColor);
+        globalUI.render(window);
         if (currentState == GameState::MainMenu) {
             mainMenu.render(window);
         } else if (currentState == GameState::RankingGame) {
             rankingGame.render(window);
         }
-        themeManager.renderThemeButton(window);
         window.display();
     }
 

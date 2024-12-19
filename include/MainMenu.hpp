@@ -1,4 +1,5 @@
 #pragma once
+#include <Button.hpp>
 #include <ThemeManager.hpp>
 #include <SFML/Graphics.hpp>
 #include <TextManager.hpp>
