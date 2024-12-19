@@ -13,7 +13,7 @@ ThemeManager::ThemeManager()
     defineDarkThemeConfig();
 
     applyTheme(currentTheme);
-    setupThemeButtons(sf::Vector2u(800, 600));
+    setupThemeButtons(font, sf::Vector2u(800, 600));
 
 }
 
@@ -57,66 +57,48 @@ void ThemeManager::defineDarkThemeConfig() {
     darkThemeConfig.borderColor           = sf::Color::White;
 }
 
-void ThemeManager::updateButtonStyles() {
-    // Light Mode Button
-    lightButton.setFillColor(currentTheme == Theme::Light
-                                 ? lightThemeConfig.highlightAreaColor  // Highlighted color
-                                 : lightThemeConfig.buttonColor);       // Normal color
-    lightButton.setOutlineColor(lightThemeConfig.borderColor);
-
-    // Dark Mode Button
-    darkButton.setFillColor(currentTheme == Theme::Dark
-                                ? darkThemeConfig.highlightAreaColor   // Highlighted color
-                                : darkThemeConfig.buttonColor);        // Normal color
-    darkButton.setOutlineColor(darkThemeConfig.borderColor);
-}
-
-void ThemeManager::setupThemeButtons(const sf::Vector2u& windowSize) {
+void ThemeManager::setupThemeButtons(const sf::Font& font, const sf::Vector2u& windowSize) {
     float buttonWidth = 80;
     float buttonHeight = 30;
     float padding = 5;
     float topMargin = 10;
 
-    // Light Mode Button
-    lightButton.setSize(sf::Vector2f(buttonWidth, buttonHeight));
-    lightButton.setPosition(windowSize.x - 2 * (buttonWidth + padding), topMargin);
-    lightLabel.setFont(font);
-    lightLabel.setString("Light");
-    lightLabel.setCharacterSize(14);
-    lightLabel.setFillColor(lightThemeConfig.instructionTextColor);
-    lightLabel.setPosition(lightButton.getPosition().x + 15, lightButton.getPosition().y + 5);
+    // Create light button
+    lightButton = Button(font, "Light", 
+                         sf::Vector2f(windowSize.x - 2 * (buttonWidth + padding), topMargin), 
+                         sf::Vector2f(buttonWidth, buttonHeight), 
+                         lightThemeConfig.buttonColor, lightThemeConfig.instructionTextColor);
 
-    // Dark Mode Button
-    darkButton.setSize(sf::Vector2f(buttonWidth, buttonHeight));
-    darkButton.setPosition(windowSize.x - (buttonWidth + padding), topMargin);
-    darkLabel.setFont(font);
-    darkLabel.setString("Dark");
-    darkLabel.setCharacterSize(14);
-    darkLabel.setFillColor(darkThemeConfig.instructionTextColor);
-    darkLabel.setPosition(darkButton.getPosition().x + 15, darkButton.getPosition().y + 5);
-
-    updateButtonStyles();
+    // Create dark button
+    darkButton = Button(font, "Dark", 
+                        sf::Vector2f(windowSize.x - (buttonWidth + padding), topMargin), 
+                        sf::Vector2f(buttonWidth, buttonHeight), 
+                        darkThemeConfig.buttonColor, darkThemeConfig.instructionTextColor);
 }
 
 void ThemeManager::applyTheme(Theme theme) {
     currentTheme = theme;
     themeConfig = (theme == Theme::Light) ? lightThemeConfig : darkThemeConfig;
-    setupThemeButtons(sf::Vector2u(800, 600));
+
+    // Update button themes to match the new theme
+    lightButton.setTheme(lightThemeConfig.buttonColor, lightThemeConfig.instructionTextColor, themeConfig.borderColor);
+    darkButton.setTheme(darkThemeConfig.buttonColor, darkThemeConfig.instructionTextColor, themeConfig.borderColor);
 }
 
 void ThemeManager::handleThemeToggle(const sf::Event& event, const sf::Vector2i& mousePos) {
-    if (event.type == sf::Event::MouseButtonPressed) {
-        if (lightButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-            applyTheme(Theme::Light);
-        } else if (darkButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-            applyTheme(Theme::Dark);
-        }
+    // Hover effect handling
+    lightButton.updateHoverState(mousePos, lightThemeConfig.highlightAreaColor, lightThemeConfig.highlightTextColor);
+    darkButton.updateHoverState(mousePos, darkThemeConfig.highlightAreaColor, darkThemeConfig.highlightTextColor);
+
+    // Handle button clicks
+    if (lightButton.isClicked(event, mousePos)) {
+        applyTheme(Theme::Light);
+    } else if (darkButton.isClicked(event, mousePos)) {
+        applyTheme(Theme::Dark);
     }
 }
 
 void ThemeManager::renderThemeButton(sf::RenderWindow& window) {
-    window.draw(lightButton);
-    window.draw(lightLabel);
-    window.draw(darkButton);
-    window.draw(darkLabel);
+    lightButton.render(window);
+    darkButton.render(window);
 }

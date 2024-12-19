@@ -31,7 +31,7 @@ int main() {
 
             switch (currentState) {
                 case GameState::MainMenu:
-                    mainMenu.handleEvent(event);
+                    mainMenu.handleEvent(event, window);
 
                     if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::Enter) {

@@ -2,76 +2,78 @@
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
     : font(font), windowSize(windowSize), selectedOption(0), doubleClickFlag(false) {
-    menuOptions = {"Play Ranking Game", "Quit"};
-}
 
-
-void MainMenu::handleEvent(const sf::Event& event) {
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+    float yOffset = windowSize.y / 3.0f;
+    float buttonWidth = 200.0f;
+    float buttonHeight = 50.0f; 
 
-    // Handle keyboard navigation
-    if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Up) {
-            selectedOption = (selectedOption - 1 + menuOptions.size()) % menuOptions.size();
-        } else if (event.key.code == sf::Keyboard::Down) {
-            selectedOption = (selectedOption + 1) % menuOptions.size();
-        }
+    std::vector<std::string> options = {"Play Ranking Game", "Quit"};
+    for (size_t i = 0; i < options.size(); ++i) {
+        sf::Vector2f position(
+            (windowSize.x - buttonWidth) / 2,  // Center horizontally
+            yOffset + i * (buttonHeight + 10) // Adjust vertical position
+        );
+        menuButtons.emplace_back(
+            font, options[i], position, sf::Vector2f(buttonWidth, buttonHeight),
+            themeConfig.buttonColor, themeConfig.instructionTextColor
+        );
     }
 
-    // Handle mouse hover
-    if (event.type == sf::Event::MouseMoved) {
-        sf::Vector2f mousePos(static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y));
-        for (size_t i = 0; i < menuOptions.size(); ++i) {
-            sf::Text tempText;
-            tempText.setFont(font);
-            tempText.setString(menuOptions[i]);
-            tempText.setCharacterSize(30); // Match rendering size
-            tempText.setFillColor(themeConfig.instructionTextColor);
-            tempText.setPosition(
-                TextManager::getXCenter(menuOptions[i], font, 30, windowSize.x),
-                windowSize.y / 3.0f + i * 50 // Y offset for each option
-            );
+    // Set initial hover state for the first button
+    menuButtons[selectedOption].setTheme(
+        themeConfig.highlightAreaColor, themeConfig.highlightTextColor, themeConfig.borderColor
+    );
+}
 
-            if (tempText.getGlobalBounds().contains(mousePos)) {
-                selectedOption = i;
-                break;
-            }
+void MainMenu::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+    sf::Vector2i mousePos = sf::Mouse::getPosition(window); // Use relative position to the window
+
+    // Handle mouse hover
+    for (size_t i = 0; i < menuButtons.size(); ++i) {
+        bool isHovered = menuButtons[i].updateHoverState(
+            mousePos, themeConfig.highlightAreaColor, themeConfig.highlightTextColor
+        );
+
+        if (isHovered && event.type == sf::Event::MouseMoved) {
+            selectedOption = i; // Update selected option on hover
         }
     }
 
     // Handle mouse clicks
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        sf::Vector2f mousePos(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
-        sf::Text tempText;
-        tempText.setFont(font);
-        tempText.setString(menuOptions[selectedOption]);
-        tempText.setCharacterSize(30);
-        tempText.setFillColor(themeConfig.instructionTextColor);
-        tempText.setPosition(
-            TextManager::getXCenter(menuOptions[selectedOption], font, 30, windowSize.x),
-            windowSize.y / 3.0f + selectedOption * 50
-        );
-
-        if (tempText.getGlobalBounds().contains(mousePos)) {
+        if (menuButtons[selectedOption].isClicked(event, mousePos)) {
             if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
                 doubleClickFlag = true; // Double click detected
             } else {
-                doubleClickFlag = false;
+                doubleClickFlag = false; // Single click
             }
             doubleClickClock.restart();
         }
     }
+
+    // Handle keyboard navigation
+    if (event.type == sf::Event::KeyPressed) {
+        menuButtons[selectedOption].setTheme( // Reset previous button
+            themeConfig.buttonColor, themeConfig.instructionTextColor, themeConfig.borderColor
+        );
+
+        if (event.key.code == sf::Keyboard::Up) {
+            selectedOption = (selectedOption - 1 + menuButtons.size()) % menuButtons.size();
+        } else if (event.key.code == sf::Keyboard::Down) {
+            selectedOption = (selectedOption + 1) % menuButtons.size();
+        }
+
+        menuButtons[selectedOption].setTheme( // Highlight current button
+            themeConfig.highlightAreaColor, themeConfig.highlightTextColor, themeConfig.borderColor
+        );
+    }
 }
 
 void MainMenu::render(sf::RenderWindow& window) {
-    const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
-    float yOffset = windowSize.y / 3.0f;
-
-    for (size_t i = 0; i < menuOptions.size(); ++i) {
-        sf::Color color = (i == selectedOption) ? theme.highlightTextColor : theme.instructionTextColor;
-        float xCenter = TextManager::getXCenter(menuOptions[i], font, 30, windowSize.x);
-        TextManager::drawText(window, menuOptions[i], font, 30, sf::Vector2f(xCenter, yOffset), color);
-        yOffset += 50;
+    for (auto& button : menuButtons) {
+        button.render(window);
     }
 }
 
