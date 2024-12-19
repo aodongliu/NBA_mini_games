@@ -87,8 +87,17 @@ void ThemeManager::applyTheme(Theme theme) {
 
 void ThemeManager::handleThemeToggle(const sf::Event& event, const sf::Vector2i& mousePos) {
     // Hover effect handling
-    lightButton.updateHoverState(mousePos, lightThemeConfig.highlightAreaColor, lightThemeConfig.highlightTextColor);
-    darkButton.updateHoverState(mousePos, darkThemeConfig.highlightAreaColor, darkThemeConfig.highlightTextColor);
+    if (lightButton.isHovered(mousePos)) {
+        lightButton.setHighlightTheme(lightThemeConfig);
+    } else {
+        lightButton.setDefaultTheme(lightThemeConfig);
+    }
+
+    if (darkButton.isHovered(mousePos)) {
+        darkButton.setHighlightTheme(darkThemeConfig);
+    } else {
+        darkButton.setDefaultTheme(darkThemeConfig);
+    }
 
     // Handle button clicks
     if (lightButton.isClicked(event, mousePos)) {

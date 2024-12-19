@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "enums.hpp"
 #include <string>
 
 class Button {
@@ -14,19 +15,21 @@ public:
            const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor);
     
     void setTheme(const sf::Color& bgColor, const sf::Color& textColor, const sf::Color& borderColor);
+    void setHighlightTheme(const ThemeConfig& themeConfig);
+    void setDefaultTheme(const ThemeConfig& themeConfig);
     bool isHovered(const sf::Vector2i& mousePos) const;
     bool isClicked(const sf::Event& event, const sf::Vector2i& mousePos) const;
-    bool updateHoverState(const sf::Vector2i& mousePos, const sf::Color& hoverBgColor, const sf::Color& hoverTextColor);
+    bool isDoubleClicked(const sf::Event& event, const sf::Vector2i& mousePos);
+    void resetDoubleClickFlag();
     void render(sf::RenderWindow& window);
 
 private:
-    bool isHoveredState;
     sf::RectangleShape buttonShape;
     sf::Text buttonText;
     sf::Color backgroundColor;
     sf::Color textColor;
     sf::Color borderColor;
-
-    sf::Color defaultBgColor;
-    sf::Color defaultTextColor;
+    
+    sf::Clock doubleClickClock;
+    bool doubleClickFlag;
 };

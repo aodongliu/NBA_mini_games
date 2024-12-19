@@ -1,14 +1,13 @@
 #include "MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : font(font), windowSize(windowSize), selectedOption(0), doubleClickFlag(false) {
+    : font(font), windowSize(windowSize), selectedOption(0) {
 
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
     float yOffset = windowSize.y / 3.0f;
     float buttonWidth = 200.0f;
     float buttonHeight = 50.0f; 
 
-    std::vector<std::string> options = {"Play Ranking Game", "Quit"};
     for (size_t i = 0; i < options.size(); ++i) {
         sf::Vector2f position(
             (windowSize.x - buttonWidth) / 2,  // Center horizontally
@@ -32,42 +31,37 @@ void MainMenu::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
 
     // Handle mouse hover
     for (size_t i = 0; i < menuButtons.size(); ++i) {
-        bool isHovered = menuButtons[i].updateHoverState(
-            mousePos, themeConfig.highlightAreaColor, themeConfig.highlightTextColor
-        );
-
-        if (isHovered && event.type == sf::Event::MouseMoved) {
+        if (menuButtons[i].isHovered(mousePos) && event.type == sf::Event::MouseMoved) {
             selectedOption = i; // Update selected option on hover
         }
     }
 
-    // Handle mouse clicks
-    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        if (menuButtons[selectedOption].isClicked(event, mousePos)) {
-            if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
-                doubleClickFlag = true; // Double click detected
-            } else {
-                doubleClickFlag = false; // Single click
-            }
-            doubleClickClock.restart();
+    // Handle mouse double-clicks
+    for (size_t i = 0; i < menuButtons.size(); ++i) {
+        if (menuButtons[i].isDoubleClicked(event, mousePos)) {
+            selectedOption = i; // Update the selected option
+            selectedOptionTriggered = true;
         }
     }
 
     // Handle keyboard navigation
     if (event.type == sf::Event::KeyPressed) {
-        menuButtons[selectedOption].setTheme( // Reset previous button
-            themeConfig.buttonColor, themeConfig.instructionTextColor, themeConfig.borderColor
-        );
-
         if (event.key.code == sf::Keyboard::Up) {
             selectedOption = (selectedOption - 1 + menuButtons.size()) % menuButtons.size();
         } else if (event.key.code == sf::Keyboard::Down) {
             selectedOption = (selectedOption + 1) % menuButtons.size();
+        } else if (event.key.code == sf::Keyboard::Enter) {
+            selectedOptionTriggered = true;
         }
-
-        menuButtons[selectedOption].setTheme( // Highlight current button
-            themeConfig.highlightAreaColor, themeConfig.highlightTextColor, themeConfig.borderColor
-        );
+    }
+    
+    // Update button themes
+    for (size_t i = 0; i < options.size(); ++i) {
+        if (i == selectedOption) {
+            menuButtons[i].setHighlightTheme(themeConfig);
+        } else {
+            menuButtons[i].setDefaultTheme(themeConfig);
+        }
     }
 }
 
@@ -77,14 +71,10 @@ void MainMenu::render(sf::RenderWindow& window) {
     }
 }
 
-int MainMenu::getSelectedOption() const {
-    return selectedOption;
-}
-
-bool MainMenu::isOptionDoubleClicked() {
-    if (doubleClickFlag) {
-        doubleClickFlag = false; // Reset the flag after checking
-        return true;
+std::optional<int> MainMenu::handleAction() {
+    if (selectedOptionTriggered) {
+        selectedOptionTriggered = false; // Reset the trigger
+        return selectedOption; // Return the currently selected option
     }
-    return false;
+    return std::nullopt; // No action triggered
 }

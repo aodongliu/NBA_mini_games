@@ -12,16 +12,14 @@ public:
 
     void handleEvent(const sf::Event& event, sf::RenderWindow& window);
     void render(sf::RenderWindow& window);
-    int  getSelectedOption() const;
-    bool isOptionDoubleClicked();
+    std::optional<int> handleAction();
 
 private:
     std::vector<Button> menuButtons;
     const sf::Font& font;
     sf::Vector2u windowSize;
 
+    std::vector<std::string> options = {"Play Ranking Game", "Quit"};
     int selectedOption;
-    sf::Clock doubleClickClock;
-    bool doubleClickFlag;
-
+    bool selectedOptionTriggered;
 };

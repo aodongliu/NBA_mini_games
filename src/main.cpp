@@ -32,32 +32,19 @@ int main() {
             switch (currentState) {
                 case GameState::MainMenu:
                     mainMenu.handleEvent(event, window);
-
-                    if (event.type == sf::Event::KeyPressed) {
-                        if (event.key.code == sf::Keyboard::Enter) {
-                            int choice = mainMenu.getSelectedOption();
-                            if (choice == 0) {
+                    if (auto action = mainMenu.handleAction()) {
+                        switch (*action) {
+                            case 0:
                                 std::cout << "Starting Ranking Game...\n";
                                 rankingGame.resetGame();
                                 rankingGame.subGameState = SubGameState::Running;
-                                currentState = GameState::RankingGame; // Transition to RankingGame
-                            } else if (choice == 1) {
+                                currentState = GameState::RankingGame;
+                                break;
+
+                            case 1:
                                 std::cout << "Exiting Game...\n";
                                 window.close();
-                            }
-                        }
-                    }
-
-                    if (mainMenu.isOptionDoubleClicked()) {
-                        int choice = mainMenu.getSelectedOption();
-                        if (choice == 0) {
-                            std::cout << "Starting Ranking Game...\n";
-                            rankingGame.resetGame();
-                            currentState = GameState::RankingGame; // Transition to RankingGame
-                            rankingGame.subGameState = SubGameState::Running;
-                        } else if (choice == 1) {
-                            std::cout << "Exiting Game...\n";
-                            window.close();
+                                break;
                         }
                     }
                     break;
