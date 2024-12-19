@@ -23,6 +23,8 @@ void RankingGame::resetGame() {
     players.clear();
     currentPlayerIndex = 0;
     quitConfirmation = false;
+    userInput.clear();
+    errorMessage.clear();
     subGameState = SubGameState::Running;
 
     try {
@@ -152,20 +154,20 @@ void RankingGame::render(sf::RenderWindow& window) {
     
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
     
-    unsigned int textSize = (subGameState == SubGameState::Complete) ? 30 : 24;
-    sf::Uint32 textStyle = (subGameState == SubGameState::Complete) ? sf::Text::Bold : sf::Text::Regular;
+    unsigned int textSize = (subGameState == SubGameState::Complete or quitConfirmation) ? 30 : 24;
+    sf::Uint32 textStyle = (subGameState == SubGameState::Complete or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
 
     TextManager::drawText(window, instructionMessage, font, textSize,
                           sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.10f), 
                           themeConfig.instructionTextColor, windowSize.x * 0.85f, textStyle);
 
     TextManager::drawText(window, "Your Input (press enter to confirm): " + userInput,
-                          font, 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.30f),
+                          font, 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.25f),
                           themeConfig.highlightTextColor, windowSize.x * 0.5f);
 
     if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
         TextManager::drawText(window, errorMessage, font, 20, 
-                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.35f), 
+                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.30f), 
                               themeConfig.warningTextColor, windowSize.x * 0.5f);
     }
 
