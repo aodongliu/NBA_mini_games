@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "UIComponent.hpp"
-#include "enums.hpp"
+#include "base/UIComponent.hpp"
+#include "base/enums.hpp"
 #include <string>
 
 class Button : public UIComponent {

@@ -1,8 +1,8 @@
 #pragma once
-#include <Button.hpp>
-#include <ThemeManager.hpp>
+#include <ui/Button.hpp>
+#include <ui/TextManager.hpp>
+#include <utils/ThemeManager.hpp>
 #include <SFML/Graphics.hpp>
-#include <TextManager.hpp>
 #include <vector>
 #include <string>
 

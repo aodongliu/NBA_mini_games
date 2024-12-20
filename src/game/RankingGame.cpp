@@ -1,4 +1,4 @@
-#include "RankingGame.hpp"
+#include "game/RankingGame.hpp"
 #include <iostream>
 #include <fstream>
 #include <random>

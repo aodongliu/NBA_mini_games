@@ -1,4 +1,4 @@
-#include "TextManager.hpp"
+#include "ui/TextManager.hpp"
 #include <sstream>
 
 void TextManager::drawText(sf::RenderWindow& window, const std::string& content, 

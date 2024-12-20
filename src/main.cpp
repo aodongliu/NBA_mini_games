@@ -1,11 +1,11 @@
 #include <SFML/Graphics.hpp>
-#include "MainMenu.hpp"
-#include "RankingGame.hpp"
+#include "base/enums.hpp"
+#include "ui/GlobalUI.hpp"
+#include "utils/ThemeManager.hpp"
+#include "game/MainMenu.hpp"
+#include "game/RankingGame.hpp"
 #include <iostream>
 #include "config.hpp"
-#include "enums.hpp"
-#include "GlobalUI.hpp"
-#include "ThemeManager.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "NBA Mini Games");

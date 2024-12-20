@@ -1,4 +1,4 @@
-#include "UIComponent.hpp"
+#include "base/UIComponent.hpp"
 
 UIComponent::UIComponent() : position(0, 0), visible(true) {}
 

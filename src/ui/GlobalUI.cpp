@@ -1,4 +1,4 @@
-#include "GlobalUI.hpp"
+#include "ui/GlobalUI.hpp"
 
 GlobalUI::GlobalUI(const sf::Font& font, const sf::Vector2u& windowSize) {
     setupThemeButtons(font, windowSize);

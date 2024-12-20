@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameBase.hpp"
-#include "Player.hpp"
+#include "base/GameBase.hpp"
+#include "game/Player.hpp"
 #include <vector>
 #include <map>
 #include <memory>

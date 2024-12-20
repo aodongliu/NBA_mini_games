@@ -1,5 +1,4 @@
-// Button.cpp
-#include "Button.hpp"
+#include "ui/Button.hpp"
 
 Button::Button() {
     buttonShape.setSize(sf::Vector2f(0, 0));

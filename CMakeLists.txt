@@ -8,11 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Find SFML
 find_package(SFML 2.5 REQUIRED graphics window system)
 
-# Include directories (optional if you use headers)
+# Include directories
 include_directories(include)
-
-# Add source files
-file(GLOB SOURCES src/*.cpp)
 
 # Set paths for assets
 set(FONT_PATH "${PROJECT_SOURCE_DIR}/fonts")
@@ -21,15 +18,22 @@ set(PLAYER_LIST_PATH "${PROJECT_SOURCE_DIR}/player_list.csv")
 
 # Generate configuration header file
 configure_file(
-    ${CMAKE_SOURCE_DIR}/include/config.hpp.in
+    ${CMAKE_SOURCE_DIR}/include/utils/config.hpp.in
     ${CMAKE_BINARY_DIR}/include/config.hpp
 )
+
+# Gather source files recursively
+file(GLOB_RECURSE SOURCES src/*.cpp)
 
 # Add executable
 add_executable(NBA_MiniGames ${SOURCES})
 
-# Add include directories for the generated config header
-target_include_directories(NBA_MiniGames PRIVATE ${CMAKE_BINARY_DIR}/include)
+# Include directories
+target_include_directories(NBA_MiniGames PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_BINARY_DIR}/include
+)
 
 # Link SFML libraries
 target_link_libraries(NBA_MiniGames sfml-graphics sfml-window sfml-system)
+

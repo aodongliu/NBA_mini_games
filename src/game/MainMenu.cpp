@@ -1,4 +1,4 @@
-#include "MainMenu.hpp"
+#include "game/MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
     : font(font), windowSize(windowSize), selectedOption(0) {

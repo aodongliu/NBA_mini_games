@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Button.hpp"
-#include "ThemeManager.hpp"
+#include "ui/Button.hpp"
+#include "utils/ThemeManager.hpp"
 
 class GlobalUI {
 public:

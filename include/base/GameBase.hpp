@@ -1,9 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <ThemeManager.hpp>
-#include <enums.hpp>
-#include <TextManager.hpp>
+#include <utils/ThemeManager.hpp>
+#include <base/enums.hpp>
+#include <ui/TextManager.hpp>
 
 class GameBase {
 public:

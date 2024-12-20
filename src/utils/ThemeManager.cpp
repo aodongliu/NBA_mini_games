@@ -1,4 +1,4 @@
-#include "ThemeManager.hpp"
+#include "utils/ThemeManager.hpp"
 
 // Singleton access
 ThemeManager& ThemeManager::getInstance() {

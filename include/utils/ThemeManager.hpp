@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <colors.hpp>
-#include <enums.hpp>
+#include <utils/colors.hpp>
+#include <base/enums.hpp>
 #include "config.hpp"
 #include <iostream>
 
