@@ -12,10 +12,10 @@ public:
 
     void setPosition(const sf::Vector2f& position);
     void setSize(const sf::Vector2f& size);
+    void setVisible(bool visible);
+    
     sf::Vector2f getPosition() const;
     sf::Vector2f getSize() const;
-
-    void setVisible(bool visible);
     bool isVisible() const;
 
 protected:

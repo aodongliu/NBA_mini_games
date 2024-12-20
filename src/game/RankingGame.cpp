@@ -9,23 +9,23 @@ RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize)
     resetGame();
 }
 
-void RankingGame::setInstruction(const std::string& message) {
-    instructionMessage = message;
-}
-
-void RankingGame::setError(const std::string& message) {
-    errorMessage = message;
-    errorClock.restart();
-}
-
 void RankingGame::resetGame() {
     rankings.clear();
     players.clear();
     currentPlayerIndex = 0;
     quitConfirmation = false;
     userInput.clear();
-    errorMessage.clear();
     subGameState = SubGameState::Running;
+    
+    instructionLabel = Label(font, "Rank this player (1-10). Press Enter to confirm, ESC to quit.",
+                             {windowSize.x * 0.05f, windowSize.y * 0.10f},
+                             ThemeManager::getInstance().getThemeConfig().instructionTextColor, 24, windowSize.x * 0.85f);
+    errorLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.325f, },
+                       ThemeManager::getInstance().getThemeConfig().warningTextColor, 17, windowSize.x * 0.5f);
+    inputLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.25f},
+                       ThemeManager::getInstance().getThemeConfig().highlightTextColor, 20, windowSize.x * 0.5f);
+                           errorLabel.setText("");
+    errorClock.restart();
 
     try {
         players = Player::loadPlayersFromCSV();
@@ -41,13 +41,12 @@ void RankingGame::resetGame() {
         std::cerr << e.what() << "\n";
     }
 
-    setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
     loadNextPlayer();
 }
 
 void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
-        setInstruction("Ranking complete! Press Enter to retry or ESC to return to the menu.");
+        instructionLabel.setText("Ranking complete! Press Enter to retry or ESC to return to the menu.");
         saveRankingToCSV();
         subGameState = SubGameState::Complete;
         return;
@@ -55,7 +54,8 @@ void RankingGame::loadNextPlayer() {
 
     const Player& player = players[currentPlayerIndex];
     if (!player.loadImage(currentPlayerTexture)) {
-        setError("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
+        errorLabel.setText("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
+        errorClock.restart();
         return;
     }
 
@@ -101,7 +101,7 @@ void RankingGame::handleEvent(const sf::Event& event) {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Enter) {
                 resetGame(); // Restart the game
-                setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
+                instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
             } else if (event.key.code == sf::Keyboard::Escape) {
                 subGameState = SubGameState::Ended; // Exit to main menu
             }
@@ -109,18 +109,19 @@ void RankingGame::handleEvent(const sf::Event& event) {
         return; // Exit early since no further handling is needed
     }
 
-    // Existing logic for handling normal game events
+    // Handle quit confirmation logic
     if (quitConfirmation) {
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-            setInstruction("Exiting to the menu...");
+            instructionLabel.setText("Exiting to the menu...");
             subGameState = SubGameState::Ended;
         } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
             quitConfirmation = false;
-            setInstruction("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
+            instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
         }
         return;
     }
 
+    // Handle normal game events
     if (event.type == sf::Event::TextEntered) {
         if (std::isdigit(event.text.unicode)) {
             userInput += static_cast<char>(event.text.unicode);
@@ -133,7 +134,8 @@ void RankingGame::handleEvent(const sf::Event& event) {
             std::string errorMsg;
             if (isValidInput(userInput, rank, errorMsg)) {
                 if (rankings.count(rank)) {
-                    setError("Rank " + std::to_string(rank) + " is already occupied! Please choose another rank.");
+                    errorLabel.setText("Rank " + std::to_string(rank) + " is already occupied! Please choose another rank.");
+                    errorClock.restart();
                 } else {
                     rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
                     currentPlayerIndex++;
@@ -141,36 +143,31 @@ void RankingGame::handleEvent(const sf::Event& event) {
                 }
                 userInput.clear();
             } else {
-                setError(errorMsg);
+                errorLabel.setText(errorMsg);
+                errorClock.restart();
             }
         } else if (event.key.code == sf::Keyboard::Escape) {
             quitConfirmation = true;
-            setInstruction("Are you sure you want to quit? Press Enter to confirm, ESC to cancel.");
+            instructionLabel.setText("Are you sure you want to quit? Press Enter to confirm, ESC to cancel.");
         }
     }
 }
 
 void RankingGame::render(sf::RenderWindow& window) {
-    
-    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
-    
+    // Render Labels
     unsigned int textSize = (subGameState == SubGameState::Complete or quitConfirmation) ? 30 : 24;
     sf::Uint32 textStyle = (subGameState == SubGameState::Complete or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
+    instructionLabel.setSize(textSize);
+    instructionLabel.setStyle(textStyle);
+    instructionLabel.render(window);
+    inputLabel.setText("Your Input (press enter to confirm): " + userInput);
+    inputLabel.render(window);
 
-    TextManager::drawText(window, instructionMessage, font, textSize,
-                          sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.10f), 
-                          themeConfig.instructionTextColor, windowSize.x * 0.85f, textStyle);
-
-    TextManager::drawText(window, "Your Input (press enter to confirm): " + userInput,
-                          font, 20, sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.25f),
-                          themeConfig.highlightTextColor, windowSize.x * 0.5f);
-
-    if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorMessage.empty()) {
-        TextManager::drawText(window, errorMessage, font, 17, 
-                              sf::Vector2f(windowSize.x * 0.05f, windowSize.y * 0.325f), 
-                              themeConfig.warningTextColor, windowSize.x * 0.5f);
+    if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorLabel.getText().empty()) {
+        errorLabel.render(window);
     }
 
+    // Render player sprite and rankings
     window.draw(currentPlayerSprite);
     displayRankings(window);
 }

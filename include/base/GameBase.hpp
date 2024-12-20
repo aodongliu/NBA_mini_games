@@ -4,6 +4,7 @@
 #include <utils/ThemeManager.hpp>
 #include <base/enums.hpp>
 #include <ui/TextManager.hpp>
+#include <ui/Label.hpp>
 
 class GameBase {
 public:

@@ -49,9 +49,11 @@ int main() {
                     break;
 
                 case GameState::RankingGame:
+                    std::cout << "Current State: RankingGame\n";
                     rankingGame.handleEvent(event);
 
                     if (rankingGame.subGameState == SubGameState::Ended) {
+                        std::cout << "Ranking Game Ended. Returning to MainMenu...\n";
                         currentState = GameState::MainMenu; // Transition back to MainMenu
                         mainMenu.reset();
                     }

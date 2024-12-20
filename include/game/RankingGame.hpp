@@ -33,12 +33,10 @@ private:
     std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
     
-    std::string instructionMessage;
-    std::string errorMessage;
+    Label instructionLabel;
+    Label errorLabel;
+    Label inputLabel;
     sf::Clock errorClock;
-
-    void setInstruction(const std::string& message);
-    void setError(const std::string& message);
 
     bool isValidInput(const std::string& input, int& rank, std::string& errorMsg);
     void loadNextPlayer();
