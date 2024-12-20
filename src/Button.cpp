@@ -12,7 +12,8 @@ Button::Button() {
 }
 
 Button::Button(const sf::Font& font, const std::string& text, const sf::Vector2f& position, 
-               const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor) {
+               const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor) 
+        : Button() {
     buttonShape.setPosition(position);
     buttonShape.setSize(size);
     buttonShape.setFillColor(bgColor);
@@ -22,15 +23,26 @@ Button::Button(const sf::Font& font, const std::string& text, const sf::Vector2f
     buttonText.setString(text);
     buttonText.setCharacterSize(14); // Default font size
     buttonText.setFillColor(textColor);
-    buttonText.setPosition(
-        position.x + (size.x - buttonText.getLocalBounds().width) / 2,
-        position.y + (size.y - buttonText.getLocalBounds().height) / 2
-    );
+    centerText();
+}
+
+void Button::setCallback(std::function<void()> onClickCallback) {
+    onClick = onClickCallback;
 }
 
 void Button::render(sf::RenderWindow& window) {
+    if (!isVisible()) return;
     window.draw(buttonShape);
     window.draw(buttonText);
+}
+
+void Button::centerText() {
+    sf::FloatRect textBounds = buttonText.getLocalBounds();
+    sf::FloatRect shapeBounds = buttonShape.getGlobalBounds();
+    buttonText.setPosition(
+        shapeBounds.left + (shapeBounds.width - textBounds.width) / 2 - textBounds.left,
+        shapeBounds.top + (shapeBounds.height - textBounds.height) / 2 - textBounds.top
+    );
 }
 
 bool Button::isHovered(const sf::Vector2i& mousePos) const {
