@@ -3,11 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <utils/ThemeManager.hpp>
 #include <base/enums.hpp>
-#include <ui/TextManager.hpp>
+//#include <ui/TextManager.hpp>
 #include <ui/Label.hpp>
 
 class GameBase {
 public:
+    GameBase();
+    GameBase(sf::Vector2u windowSize);
     virtual ~GameBase() = default;
 
     virtual void handleEvent(const sf::Event& event) = 0;

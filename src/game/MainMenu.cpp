@@ -1,46 +1,46 @@
 #include "game/MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : font(font), windowSize(windowSize), selectedOption(0), selectedOptionTriggered(false){
+    : font(font), windowSize(windowSize), selectedOption(0), selectedOptionTriggered(false) {}
+
+void MainMenu::addOption(const std::string& optionText, std::function<void()> callback) { 
 
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
-    float yOffset = windowSize.y / 3.0f;
     float buttonWidth = 200.0f;
     float buttonHeight = 50.0f; 
-
-    for (size_t i = 0; i < options.size(); ++i) {
-        sf::Vector2f position(
-            (windowSize.x - buttonWidth) / 2,  // Center horizontally
-            yOffset + i * (buttonHeight + 10) // Adjust vertical position
-        );
-        menuButtons.emplace_back(
-            font, options[i], position, sf::Vector2f(buttonWidth, buttonHeight),
-            themeConfig.buttonColor, themeConfig.instructionTextColor
-        );
-    }
-
-    // Set initial hover state for the first button
-    menuButtons[selectedOption].setTheme(
-        themeConfig.highlightAreaColor, themeConfig.highlightTextColor, themeConfig.borderColor
+    float yOffset = windowSize.y / 3.0f;
+    sf::Vector2f position(
+        (windowSize.x - buttonWidth) / 2, // Center horizontally
+        yOffset + menuButtons.size() * (buttonHeight + 10) // Adjust vertical position
     );
+
+    Button button(font, optionText, position, {buttonWidth, buttonHeight}, 
+                  themeConfig.buttonColor, themeConfig.instructionTextColor);
+    button.setCallback(callback);
+    menuButtons.push_back(button);
+    updateButtonThemes();
+}
+
+void MainMenu::reset() {
+    selectedOption = 0;
+    selectedOptionTriggered = false; 
+    for (auto& button : menuButtons) {
+        button.resetDoubleClickFlag();
+    }
+    updateButtonThemes();
 }
 
 void MainMenu::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
-    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
     sf::Vector2i mousePos = sf::Mouse::getPosition(window); // Use relative position to the window
 
     // Handle mouse hover
     for (size_t i = 0; i < menuButtons.size(); ++i) {
         if (menuButtons[i].isHovered(mousePos) && event.type == sf::Event::MouseMoved) {
-            selectedOption = i; // Update selected option on hover
+            selectedOption = i;
         }
-    }
 
-    // Handle mouse double-clicks
-    for (size_t i = 0; i < menuButtons.size(); ++i) {
         if (menuButtons[i].isDoubleClicked(event, mousePos)) {
-            selectedOption = i; // Update the selected option
-            selectedOptionTriggered = true;
+            menuButtons[i].triggerCallback();
         }
     }
 
@@ -51,18 +51,11 @@ void MainMenu::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
         } else if (event.key.code == sf::Keyboard::Down) {
             selectedOption = (selectedOption + 1) % menuButtons.size();
         } else if (event.key.code == sf::Keyboard::Enter) {
-            selectedOptionTriggered = true;
+            menuButtons[selectedOption].triggerCallback();
         }
     }
     
-    // Update button themes
-    for (size_t i = 0; i < options.size(); ++i) {
-        if (i == selectedOption) {
-            menuButtons[i].setHighlightTheme(themeConfig);
-        } else {
-            menuButtons[i].setDefaultTheme(themeConfig);
-        }
-    }
+    updateButtonThemes();
 }
 
 void MainMenu::render(sf::RenderWindow& window) {
@@ -71,19 +64,15 @@ void MainMenu::render(sf::RenderWindow& window) {
     }
 }
 
-std::optional<int> MainMenu::handleAction() {
-    if (selectedOptionTriggered) {
-        selectedOptionTriggered = false; // Reset the trigger
-        return selectedOption; // Return the currently selected option
+void MainMenu::updateButtonThemes() {
+    const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
+    for (size_t i = 0; i < menuButtons.size(); ++i) {
+        if (i == selectedOption) {
+            menuButtons[i].setHighlightTheme(themeConfig);
+        } else {
+            menuButtons[i].setDefaultTheme(themeConfig);
+        }
     }
-    return std::nullopt; // No action triggered
 }
 
-void MainMenu::reset() {
-    selectedOption = 0;
-    selectedOptionTriggered = false; 
-    for (auto& button : menuButtons) {
-        button.resetDoubleClickFlag();
-    }
 
-}

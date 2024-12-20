@@ -85,3 +85,9 @@ void Button::setDefaultTheme(const ThemeConfig& themeConfig) {
     setTheme(themeConfig.buttonColor, themeConfig.instructionTextColor, themeConfig.borderColor);
 }
 
+void Button::triggerCallback() {
+    if (onClick) {
+        onClick();
+    }
+}
+

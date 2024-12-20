@@ -20,6 +20,18 @@ int main() {
     MainMenu mainMenu(font, window.getSize());
     RankingGame rankingGame(font, window.getSize());
     GameState currentState = GameState::MainMenu;
+
+    // Add menu options with callbacks
+    mainMenu.addOption("Play Ranking Game", [&]() {
+        std::cout << "Starting Ranking Game...\n";
+        rankingGame.resetGame();
+        currentState = GameState::RankingGame;
+    });
+
+    mainMenu.addOption("Quit", [&]() {
+        std::cout << "Exiting Game...\n";
+        window.close();
+    });
     
     while (window.isOpen()) {
         sf::Event event;
@@ -32,20 +44,6 @@ int main() {
             switch (currentState) {
                 case GameState::MainMenu:
                     mainMenu.handleEvent(event, window);
-                    if (auto action = mainMenu.handleAction()) {
-                        switch (*action) {
-                            case 0:
-                                std::cout << "Starting Ranking Game...\n";
-                                rankingGame.resetGame();
-                                currentState = GameState::RankingGame;
-                                break;
-
-                            case 1:
-                                std::cout << "Exiting Game...\n";
-                                window.close();
-                                break;
-                        }
-                    }
                     break;
 
                 case GameState::RankingGame:

@@ -39,6 +39,9 @@ private:
     sf::Clock errorClock;
 
     bool isValidInput(const std::string& input, int& rank, std::string& errorMsg);
+    void configurePlayerSprite();
+    void setUpLabels();
+    void loadRandomPlayers();
     void loadNextPlayer();
     void displayRankings(sf::RenderWindow& window);
     void saveRankingToCSV();

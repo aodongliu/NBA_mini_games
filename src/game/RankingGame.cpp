@@ -3,9 +3,20 @@
 #include <fstream>
 #include <random>
 
+// Left section: Display player pictures
+constexpr float LEFT_SECTION_WIDTH_RATIO = 0.6f;
+constexpr float PLAYER_SPRITE_MAX_WIDTH_RATIO = 0.3f;
+// Right section: Display a live ranking tale
+constexpr float RIGHT_SECTION_WIDTH_RATIO = 0.3f;
+constexpr float RANKING_TABLE_YSTART_RATIO = 0.3f;
+constexpr float RANKING_TABLE_HEIGHT_RATIO = 0.5f;
+constexpr float LABEL_PADDING_RATIO = 0.25f;
+
+constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
+constexpr size_t NUM_PLAYER_TO_RANK = 6;
+
 RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
-    : currentPlayerIndex(0), errorClock(), quitConfirmation(false), font(font) {
-    this->windowSize = windowSize;
+    : GameBase(windowSize), currentPlayerIndex(0), errorClock(), quitConfirmation(false), font(font)  {
     resetGame();
 }
 
@@ -17,31 +28,38 @@ void RankingGame::resetGame() {
     userInput.clear();
     subGameState = SubGameState::Running;
     
+    setUpLabels();
+    loadRandomPlayers();
+    loadNextPlayer();
+}
+
+void RankingGame::setUpLabels() {
+    const auto& theme = ThemeManager::getInstance().getThemeConfig();
+
     instructionLabel = Label(font, "Rank this player (1-10). Press Enter to confirm, ESC to quit.",
                              {windowSize.x * 0.05f, windowSize.y * 0.10f},
-                             ThemeManager::getInstance().getThemeConfig().instructionTextColor, 24, windowSize.x * 0.85f);
-    errorLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.325f, },
-                       ThemeManager::getInstance().getThemeConfig().warningTextColor, 17, windowSize.x * 0.5f);
+                             theme.instructionTextColor, 24, windowSize.x * 0.85f);
+    errorLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.325f},
+                       theme.warningTextColor, 17, windowSize.x * 0.5f);
     inputLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.25f},
-                       ThemeManager::getInstance().getThemeConfig().highlightTextColor, 20, windowSize.x * 0.5f);
-                           errorLabel.setText("");
-    errorClock.restart();
+                       theme.highlightTextColor, 20, windowSize.x * 0.5f);
 
+    errorClock.restart();
+}
+
+void RankingGame::loadRandomPlayers() {
     try {
         players = Player::loadPlayersFromCSV();
         std::random_device rd;
         std::mt19937 g(rd());
         std::shuffle(players.begin(), players.end(), g);
-        players.resize(std::min(players.size(), size_t(10)));
-
+        players.resize(std::min(players.size(), size_t(NUM_PLAYER_TO_RANK)));
         if (players.empty()) {
             throw std::runtime_error("Error: No players found in the CSV.");
         }
     } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
     }
-
-    loadNextPlayer();
 }
 
 void RankingGame::loadNextPlayer() {
@@ -59,35 +77,37 @@ void RankingGame::loadNextPlayer() {
         return;
     }
 
+    configurePlayerSprite();
+}
+
+void RankingGame::configurePlayerSprite() {
     currentPlayerSprite.setTexture(currentPlayerTexture);
 
-    float leftWidth = windowSize.x * 0.6f; // Left section width (60%)
-    float maxSpriteWidth = leftWidth * 0.3f; // Max width is 30% of the left section
+    float leftWidth = windowSize.x * LEFT_SECTION_WIDTH_RATIO;
+    float maxSpriteWidth = leftWidth * PLAYER_SPRITE_MAX_WIDTH_RATIO;
     float scale = maxSpriteWidth / currentPlayerTexture.getSize().x;
+
     currentPlayerSprite.setScale(scale, scale);
 
     float spriteX = (leftWidth - currentPlayerSprite.getGlobalBounds().width) / 2;
-    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) / 3 * 2;
+    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) * 2 / 3;
     currentPlayerSprite.setPosition(spriteX, spriteY);
 }
 
 bool RankingGame::isValidInput(const std::string& input, int& rank, std::string& errorMsg) {
     if (input.empty()) {
-        errorMsg = "Input cannot be empty! Please enter a number between 1 and 10.";
+        errorMsg = "Input cannot be empty! Please enter a number between 1 to " + std::to_string(NUM_PLAYER_TO_RANK) + ".";
         return false;
     }
 
-    for (char c : input) {
-        if (!std::isdigit(c)) {
-            errorMsg = "Invalid input! Please enter a valid number between 1 and 10.";
-            return false;
-        }
+    if (!std::all_of(input.begin(), input.end(), ::isdigit)) {
+        errorMsg = "Invalid input! Please enter a valid number between 1 to " + std::to_string(NUM_PLAYER_TO_RANK) + ".";
+        return false;
     }
 
     rank = std::stoi(input);
-
-    if (rank < 1 || rank > 10) {
-        errorMsg = "Invalid rank! Please enter a number between 1 and 10.";
+    if (rank < 1 || rank > NUM_PLAYER_TO_RANK) {
+        errorMsg = "Invalid rank! Please enter a number between 1 to " + std::to_string(NUM_PLAYER_TO_RANK) + ".";
         return false;
     }
 
@@ -101,7 +121,6 @@ void RankingGame::handleEvent(const sf::Event& event) {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Enter) {
                 resetGame(); // Restart the game
-                instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
             } else if (event.key.code == sf::Keyboard::Escape) {
                 subGameState = SubGameState::Ended; // Exit to main menu
             }
@@ -175,15 +194,11 @@ void RankingGame::render(sf::RenderWindow& window) {
 void RankingGame::displayRankings(sf::RenderWindow& window) {
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
 
-    float xStart = windowSize.x * 0.6f;              // Starting X position
-    float xEnd = windowSize.x * 0.9f;                // Ending X position (90% of window width)
-    float rightWidth = xEnd - xStart;                // Dynamically calculate width
+    float xStart = windowSize.x * LEFT_SECTION_WIDTH_RATIO;
+    float rightWidth = windowSize.x * RIGHT_SECTION_WIDTH_RATIO;
+    float yStart = windowSize.y * RANKING_TABLE_YSTART_RATIO;
+    float rankingsHeight = windowSize.y * RANKING_TABLE_HEIGHT_RATIO;
 
-    float yStart = windowSize.y * 0.3f;             // Starting Y position (30%)
-    float yEnd = windowSize.y * 0.8f;                // Ending Y position (80%)
-    float rankingsHeight = yEnd - yStart;            // Total height available for rankings
-
-    // Background rectangle
     sf::RectangleShape background(sf::Vector2f(rightWidth, rankingsHeight));
     background.setFillColor(themeConfig.highlightAreaColor);
     background.setOutlineColor(themeConfig.highlightTextColor);
@@ -191,22 +206,17 @@ void RankingGame::displayRankings(sf::RenderWindow& window) {
     background.setPosition(xStart, yStart);
     window.draw(background);
 
-    // Calculate row height dynamically based on available height
-    float rowHeight = rankingsHeight / 10.0f; // Divide by 10 rows
+    float rowHeight = rankingsHeight / NUM_PLAYER_TO_RANK;
 
-    // Draw each ranking entry
-    for (int i = 1; i <= 10; ++i) {
+    for (int i = 1; i <= NUM_PLAYER_TO_RANK; ++i) {
         std::string content = std::to_string(i) + ": ";
         if (rankings.count(i)) {
             content += rankings[i]->getFirstName() + " " + rankings[i]->getLastName();
-        } else {
-            content += "";
         }
-
-        // Calculate position for each row
-        float currentY = yStart + (i - 1) * rowHeight + rowHeight * 0.25f; // Add padding for text centering
-        TextManager::drawText(window, content, font, 20, 
-                              sf::Vector2f(xStart + 10, currentY), themeConfig.instructionTextColor);
+        float currentY = yStart + (i - 1) * rowHeight + rowHeight * LABEL_PADDING_RATIO;
+        //TextManager::drawText(window, content, font, 20, {xStart + 10, currentY}, themeConfig.instructionTextColor);
+        Label rankLabel(font, content, {xStart + 10, currentY}, themeConfig.instructionTextColor, 20);
+        rankLabel.render(window);
     }
 }
 
