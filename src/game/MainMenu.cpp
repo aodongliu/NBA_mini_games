@@ -1,7 +1,7 @@
 #include "game/MainMenu.hpp"
 
 MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : font(font), windowSize(windowSize), selectedOption(0) {
+    : font(font), windowSize(windowSize), selectedOption(0), selectedOptionTriggered(false){
 
     const ThemeConfig& themeConfig = ThemeManager::getInstance().getThemeConfig();
     float yOffset = windowSize.y / 3.0f;
