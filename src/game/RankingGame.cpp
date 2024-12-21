@@ -15,8 +15,8 @@ constexpr float LABEL_PADDING_RATIO = 0.25f;
 constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
 constexpr size_t NUM_PLAYER_TO_RANK = 6;
 
-RankingGame::RankingGame(const sf::Font& font, sf::Vector2u windowSize) 
-    : GameBase(windowSize), currentPlayerIndex(0), errorClock(), quitConfirmation(false), font(font)  {
+RankingGame::RankingGame(sf::RenderWindow& window, const sf::Font& font) 
+    : GameBase(window), font(font), currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
     resetGame();
 }
 
@@ -234,4 +234,12 @@ void RankingGame::saveRankingToCSV() {
     }
 
     std::cout << "Rankings saved to rankings.csv.\n";
+}
+
+void RankingGame::updateTheme() {
+    const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
+    instructionLabel.setColor(theme.instructionTextColor);
+    inputLabel.setColor(theme.highlightTextColor);
+    errorLabel.setColor(theme.warningTextColor);
+    inputLabel.setColor(theme.highlightTextColor);
 }

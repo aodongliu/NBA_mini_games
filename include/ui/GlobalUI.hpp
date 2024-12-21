@@ -6,16 +6,20 @@
 
 class GlobalUI {
 public:
-    GlobalUI(const sf::Font& font, const sf::Vector2u& windowSize);
+    GlobalUI(sf::RenderWindow& window, const sf::Font& font);
 
-    void handleEvent(const sf::Event& event, const sf::RenderWindow& window);
+    void handleEvent(const sf::Event& event);
     void render(sf::RenderWindow& window);
-    void updateSize(const sf::Font& font, const sf::Vector2u& windowSize);
+    void updateSize();
 
 private:
+    sf::RenderWindow& window;
+    sf::Vector2u windowSize;
+    sf::Font font;
+       
     Button lightButton, darkButton;
     sf::Vector2f lightButtonPos, darkButtonPos;
 
-    void setupThemeButtons(const sf::Font& font, const sf::Vector2u& windowSize);
+    void setupThemeButtons();
 
 };

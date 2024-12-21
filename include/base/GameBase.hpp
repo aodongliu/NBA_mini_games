@@ -8,14 +8,16 @@
 
 class GameBase {
 public:
-    GameBase();
-    GameBase(sf::Vector2u windowSize);
+    GameBase() = delete;
+    GameBase(sf::RenderWindow& window);
     virtual ~GameBase() = default;
 
     virtual void handleEvent(const sf::Event& event) = 0;
     virtual void render(sf::RenderWindow& window) = 0;
+    virtual void updateTheme() = 0;
 
 protected:
+    sf::RenderWindow& window;
     sf::Vector2u windowSize; 
 
 };

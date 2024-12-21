@@ -1,7 +1,7 @@
 #include "game/MainMenu.hpp"
 
-MainMenu::MainMenu(const sf::Font& font, const sf::Vector2u& windowSize)
-    : font(font), windowSize(windowSize), selectedOption(0), selectedOptionTriggered(false) {}
+MainMenu::MainMenu(sf::RenderWindow& window, const sf::Font& font)
+    : GameBase(window), font(font), selectedOption(0), selectedOptionTriggered(false) {}
 
 void MainMenu::addOption(const std::string& optionText, std::function<void()> callback) { 
 
@@ -30,7 +30,7 @@ void MainMenu::reset() {
     updateButtonThemes();
 }
 
-void MainMenu::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
+void MainMenu::handleEvent(const sf::Event& event) {
     sf::Vector2i mousePos = sf::Mouse::getPosition(window); // Use relative position to the window
 
     // Handle mouse hover
@@ -73,6 +73,10 @@ void MainMenu::updateButtonThemes() {
             menuButtons[i].setDefaultTheme(themeConfig);
         }
     }
+}
+
+void MainMenu::updateTheme() {
+    updateButtonThemes();
 }
 
 

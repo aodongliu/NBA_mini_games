@@ -1,3 +1,4 @@
 #include "base/GameBase.hpp"
 
-GameBase::GameBase(sf::Vector2u size) : windowSize(size) {}
+GameBase::GameBase(sf::RenderWindow& window) 
+    : window(window), windowSize(window.getSize()) {}

@@ -8,11 +8,11 @@
 class RankingGame : public GameBase {
 
 public:
-    RankingGame(const sf::Font& font, sf::Vector2u windowSize);
+    RankingGame(sf::RenderWindow& window, const sf::Font& font);
 
     void handleEvent(const sf::Event& event) override;
-
     void render(sf::RenderWindow& window) override;
+    void updateTheme() override;
     
     void resetGame();
     
