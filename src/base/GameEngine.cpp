@@ -1,7 +1,8 @@
 #include "base/GameEngine.hpp"
 
 GameEngine::GameEngine(sf::RenderWindow& window, sf::Font& font)
-    : window(window), currentState(nullptr), globalUI(nullptr) {
+    : window(window) {
+    globalUI = std::make_shared<GlobalUI>(window, font);
     // Create each game
     mainMenu = std::make_shared<MainMenu>(window, font);
     rankingGame = std::make_shared<RankingGame>(window, font);
@@ -27,8 +28,8 @@ void GameEngine::setState(const std::shared_ptr<GameBase>& newState) {
     }
 }
 
-void GameEngine::setGlobalUI(GlobalUI* ui) {
-    globalUI = ui;
+void GameEngine::setGlobalUI(const std::shared_ptr<GlobalUI>& newGlobalUI) {
+    globalUI = newGlobalUI; 
 }
 
 void GameEngine::run() {
@@ -50,6 +51,7 @@ void GameEngine::run() {
 
         // Rendering
         window.clear(ThemeManager::getInstance().getThemeConfig().backgroundColor);
+        currentState->updateTheme();
 
         if (globalUI) globalUI->render(window);
         if (currentState) currentState->render(window);

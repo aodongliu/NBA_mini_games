@@ -16,11 +16,8 @@ int main() {
         std::cerr << "Error: Failed to load font.\n";
         return -1;
     }
-
-    GlobalUI globalUI(window, font);
-    GameEngine engine(window, font); // Pass the window and font to the GameEngine
-    engine.setGlobalUI(&globalUI);
-
+    
+    GameEngine engine(window, font); 
     engine.run();
 
     return 0;

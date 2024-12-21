@@ -18,7 +18,6 @@ void MainMenu::addOption(const std::string& optionText, std::function<void()> ca
                   themeConfig.buttonColor, themeConfig.instructionTextColor);
     button.setCallback(callback);
     menuButtons.push_back(button);
-    updateButtonThemes();
 }
 
 void MainMenu::reset() {
@@ -27,7 +26,6 @@ void MainMenu::reset() {
     for (auto& button : menuButtons) {
         button.resetDoubleClickFlag();
     }
-    updateButtonThemes();
 }
 
 void MainMenu::handleEvent(const sf::Event& event) {
@@ -54,8 +52,6 @@ void MainMenu::handleEvent(const sf::Event& event) {
             menuButtons[selectedOption].triggerCallback();
         }
     }
-    
-    updateButtonThemes();
 }
 
 void MainMenu::render(sf::RenderWindow& window) {
