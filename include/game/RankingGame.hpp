@@ -12,36 +12,20 @@ public:
 
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;
-    void updateTheme() override;
+    void resetGame() override;
     
-    void resetGame();
-    
-    SubGameState subGameState;
-
 private:
-
-    const sf::Font& font;
-
-    bool quitConfirmation;
-
-    std::string userInput;
 
     sf::Sprite currentPlayerSprite;
     sf::Texture currentPlayerTexture;
 
-    std::vector<Player> players;
+    std::string userInput;
     std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
     
-    Label instructionLabel;
-    Label errorLabel;
-    Label inputLabel;
-    sf::Clock errorClock;
-
+    void setUpLabels() override;
     bool isValidInput(const std::string& input, int& rank, std::string& errorMsg);
     void configurePlayerSprite();
-    void setUpLabels();
-    void loadRandomPlayers();
     void loadNextPlayer();
     void displayRankings(sf::RenderWindow& window);
     void saveRankingToCSV();

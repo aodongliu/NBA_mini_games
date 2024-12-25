@@ -16,7 +16,7 @@ constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
 constexpr size_t NUM_PLAYER_TO_RANK = 6;
 
 RankingGame::RankingGame(sf::RenderWindow& window, const sf::Font& font) 
-    : GameBase(window), font(font), currentPlayerIndex(0), errorClock(), quitConfirmation(false) {
+    : GameBase(window, font), currentPlayerIndex(0) {
     resetGame();
 }
 
@@ -29,7 +29,7 @@ void RankingGame::resetGame() {
     subGameState = SubGameState::Running;
     
     setUpLabels();
-    loadRandomPlayers();
+    loadRandomPlayers(size_t(NUM_PLAYER_TO_RANK));
     loadNextPlayer();
 }
 
@@ -45,21 +45,6 @@ void RankingGame::setUpLabels() {
                        theme.highlightTextColor, 20, windowSize.x * 0.5f);
 
     errorClock.restart();
-}
-
-void RankingGame::loadRandomPlayers() {
-    try {
-        players = Player::loadPlayersFromCSV();
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(players.begin(), players.end(), g);
-        players.resize(std::min(players.size(), size_t(NUM_PLAYER_TO_RANK)));
-        if (players.empty()) {
-            throw std::runtime_error("Error: No players found in the CSV.");
-        }
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << "\n";
-    }
 }
 
 void RankingGame::loadNextPlayer() {
@@ -236,10 +221,3 @@ void RankingGame::saveRankingToCSV() {
     std::cout << "Rankings saved to rankings.csv.\n";
 }
 
-void RankingGame::updateTheme() {
-    const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
-    instructionLabel.setColor(theme.instructionTextColor);
-    inputLabel.setColor(theme.highlightTextColor);
-    errorLabel.setColor(theme.warningTextColor);
-    inputLabel.setColor(theme.highlightTextColor);
-}

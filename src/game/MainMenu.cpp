@@ -1,7 +1,7 @@
 #include "game/MainMenu.hpp"
 
 MainMenu::MainMenu(sf::RenderWindow& window, const sf::Font& font)
-    : GameBase(window), font(font), selectedOption(0), selectedOptionTriggered(false) {}
+    : WindowBase(window), font(font), selectedOption(0), selectedOptionTriggered(false) {}
 
 void MainMenu::addOption(const std::string& optionText, std::function<void()> callback) { 
 

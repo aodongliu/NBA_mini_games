@@ -2,12 +2,12 @@
 #include <ui/Button.hpp>
 //#include <ui/TextManager.hpp>
 #include <utils/ThemeManager.hpp>
-#include <base/GameBase.hpp>
+#include <base/WindowBase.hpp>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
 
-class MainMenu : public GameBase {
+class MainMenu : public WindowBase {
 
 public:
     MainMenu(sf::RenderWindow& window, const sf::Font& font);

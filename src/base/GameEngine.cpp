@@ -15,13 +15,13 @@ GameEngine::GameEngine(sf::RenderWindow& window, sf::Font& font)
     mainMenu->addOption("Quit", [&]() {
         window.close(); // Quit the application
     });
+    
     // Set initial state
-    currentState = mainMenu;
-    currentState->updateTheme();
+    setState(mainMenu);
     
 }
 
-void GameEngine::setState(const std::shared_ptr<GameBase>& newState) {
+void GameEngine::setState(const std::shared_ptr<WindowBase>& newState) {
     currentState = newState;
     if (currentState) {
         currentState->updateTheme();
@@ -44,7 +44,8 @@ void GameEngine::run() {
             if (currentState) currentState->handleEvent(event);
         }
 
-        if (currentState == rankingGame && rankingGame->subGameState == SubGameState::Ended) {
+        auto gameState = std::dynamic_pointer_cast<GameBase>(currentState);
+        if (gameState && gameState->subGameState == SubGameState::Ended) {
             mainMenu->reset();
             setState(mainMenu); 
         }
