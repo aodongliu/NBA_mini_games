@@ -25,7 +25,5 @@ void GameBase::loadRandomPlayers(size_t numPlayers) {
 void GameBase::updateTheme() {
     const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
     instructionLabel.setColor(theme.instructionTextColor);
-    inputLabel.setColor(theme.highlightTextColor);
     errorLabel.setColor(theme.warningTextColor);
-    inputLabel.setColor(theme.highlightTextColor);
 }

@@ -5,30 +5,23 @@
 #include <vector>
 #include <map>
 #include <memory>
-class RankingGame : public GameBase {
+class WhoHePlayFor : public GameBase {
 
 public:
-    RankingGame(sf::RenderWindow& window, const sf::Font& font);
+    WhoHePlayFor(sf::RenderWindow& window, const sf::Font& font);
 
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;
     void resetGame() override;
-    void updateTheme() override;
     
 private:
 
     sf::Sprite currentPlayerSprite;
     sf::Texture currentPlayerTexture;
-    Label inputLabel;
 
-    std::string userInput;
-    std::map<int, std::shared_ptr<Player>> rankings;
     size_t currentPlayerIndex;
     
     void setUpLabels() override;
-    bool isValidInput(const std::string& input, int& rank, std::string& errorMsg);
     void configurePlayerSprite();
     void loadNextPlayer();
-    void displayRankings(sf::RenderWindow& window);
-    void saveRankingToCSV();
 };

@@ -16,14 +16,13 @@ public:
     virtual void resetGame() = 0;
     virtual void updateTheme();
 
-    SubGameState subGameState;
+    GameState GameState;
 
 protected:
 
     const sf::Font& font;
     Label instructionLabel;
     Label errorLabel;
-    Label inputLabel;
     sf::Clock errorClock;
 
     bool quitConfirmation;

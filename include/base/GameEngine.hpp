@@ -6,6 +6,7 @@
 #include <memory>
 #include "game/MainMenu.hpp"
 #include "game/RankingGame.hpp"
+#include "game/WhoHePlayFor.hpp"
 
 class GameEngine {
 public:
@@ -19,5 +20,7 @@ private:
     std::shared_ptr<GlobalUI> globalUI;
     std::shared_ptr<WindowBase> currentState;   // Shared ownership of the active state
     std::shared_ptr<MainMenu> mainMenu;       // Shared pointer to MainMenu
+    
     std::shared_ptr<RankingGame> rankingGame; // Shared pointer to RankingGame
+    std::shared_ptr<WhoHePlayFor> whoHePlayFor; // Shared pointer to RankingGame
 };

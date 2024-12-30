@@ -26,7 +26,7 @@ void RankingGame::resetGame() {
     currentPlayerIndex = 0;
     quitConfirmation = false;
     userInput.clear();
-    subGameState = SubGameState::Running;
+    GameState = GameState::Running;
     
     setUpLabels();
     loadRandomPlayers(size_t(NUM_PLAYER_TO_RANK));
@@ -51,7 +51,7 @@ void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
         instructionLabel.setText("Ranking complete! Press Enter to retry or ESC to return to the menu.");
         saveRankingToCSV();
-        subGameState = SubGameState::Complete;
+        GameState = GameState::Ending;
         return;
     }
 
@@ -102,12 +102,12 @@ bool RankingGame::isValidInput(const std::string& input, int& rank, std::string&
 
 void RankingGame::handleEvent(const sf::Event& event) {
     // Handle events when the game has ended
-    if (subGameState == SubGameState::Complete) {
+    if (GameState == GameState::Ending) {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Enter) {
                 resetGame(); // Restart the game
             } else if (event.key.code == sf::Keyboard::Escape) {
-                subGameState = SubGameState::Ended; // Exit to main menu
+                GameState = GameState::Ended; // Exit to main menu
             }
         }
         return; // Exit early since no further handling is needed
@@ -117,7 +117,7 @@ void RankingGame::handleEvent(const sf::Event& event) {
     if (quitConfirmation) {
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
             instructionLabel.setText("Exiting to the menu...");
-            subGameState = SubGameState::Ended;
+            GameState = GameState::Ended;
         } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
             quitConfirmation = false;
             instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
@@ -159,8 +159,8 @@ void RankingGame::handleEvent(const sf::Event& event) {
 
 void RankingGame::render(sf::RenderWindow& window) {
     // Render Labels
-    unsigned int textSize = (subGameState == SubGameState::Complete or quitConfirmation) ? 30 : 24;
-    sf::Uint32 textStyle = (subGameState == SubGameState::Complete or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
+    unsigned int textSize = (GameState == GameState::Ending or quitConfirmation) ? 30 : 24;
+    sf::Uint32 textStyle = (GameState == GameState::Ending or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
     instructionLabel.setSize(textSize);
     instructionLabel.setStyle(textStyle);
     instructionLabel.render(window);
@@ -221,3 +221,9 @@ void RankingGame::saveRankingToCSV() {
     std::cout << "Rankings saved to rankings.csv.\n";
 }
 
+void RankingGame::updateTheme() {
+    GameBase::updateTheme();
+    const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
+    inputLabel.setColor(theme.highlightTextColor);
+    inputLabel.setColor(theme.highlightTextColor);
+}

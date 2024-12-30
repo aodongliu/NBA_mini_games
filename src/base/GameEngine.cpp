@@ -6,10 +6,17 @@ GameEngine::GameEngine(sf::RenderWindow& window, sf::Font& font)
     // Create each game
     mainMenu = std::make_shared<MainMenu>(window, font);
     rankingGame = std::make_shared<RankingGame>(window, font);
+    whoHePlayFor = std::make_shared<WhoHePlayFor>(window, font);
     // Intialize main menu
     mainMenu->addOption("Play Ranking Game", [this]() {
         rankingGame->resetGame();
         setState(rankingGame); // Transition to RankingGame
+    });
+    
+    mainMenu->addOption("Who He Play For", [this]() {
+        setState(mainMenu);
+        //whoHePlayFor->resetGame();
+        //setState(whoHePlayFor); 
     });
 
     mainMenu->addOption("Quit", [&]() {
@@ -44,8 +51,8 @@ void GameEngine::run() {
             if (currentState) currentState->handleEvent(event);
         }
 
-        auto gameState = std::dynamic_pointer_cast<GameBase>(currentState);
-        if (gameState && gameState->subGameState == SubGameState::Ended) {
+        auto curState = std::dynamic_pointer_cast<GameBase>(currentState);
+        if (curState && curState->GameState == GameState::Ended) {
             mainMenu->reset();
             setState(mainMenu); 
         }
