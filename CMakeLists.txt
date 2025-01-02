@@ -15,6 +15,7 @@ include_directories(include)
 set(FONT_PATH "${PROJECT_SOURCE_DIR}/fonts")
 set(PLAYER_IMAGES_PATH "${PROJECT_SOURCE_DIR}/player_images")
 set(PLAYER_LIST_PATH "${PROJECT_SOURCE_DIR}/player_list.csv")
+set(TEAM_LOGOS_PATH "${PROJECT_SOURCE_DIR}/team_logos")
 
 # Generate configuration header file
 configure_file(
