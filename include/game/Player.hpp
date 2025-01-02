@@ -2,6 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
+#include <iostream>
+#include "utils/ErrorHandler.hpp"
+#include "utils/ResourceManager.hpp"
+
 
 class Player{
 public:

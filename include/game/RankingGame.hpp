@@ -8,7 +8,7 @@
 class RankingGame : public GameBase {
 
 public:
-    RankingGame(sf::RenderWindow& window, const sf::Font& font);
+    RankingGame(sf::RenderWindow& window, std::shared_ptr<sf::Font> font);
 
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;

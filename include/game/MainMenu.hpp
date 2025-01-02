@@ -10,7 +10,7 @@
 class MainMenu : public WindowBase {
 
 public:
-    MainMenu(sf::RenderWindow& window, const sf::Font& font);
+    MainMenu(sf::RenderWindow& window, std::shared_ptr<sf::Font> font);
 
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;
@@ -21,7 +21,7 @@ public:
 
 private:
     std::vector<Button> menuButtons;
-    const sf::Font& font;
+    std::shared_ptr<sf::Font> font;
 
     int selectedOption;
     bool selectedOptionTriggered;

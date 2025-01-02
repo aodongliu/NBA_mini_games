@@ -1,6 +1,6 @@
 #include "ui/GlobalUI.hpp"
 
-GlobalUI::GlobalUI(sf::RenderWindow& window, const sf::Font& font)
+GlobalUI::GlobalUI(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : window(window), windowSize(window.getSize()), font(font) {
     setupThemeButtons();
 }

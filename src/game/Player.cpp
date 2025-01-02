@@ -3,7 +3,6 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
-#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -20,13 +19,21 @@ void Player::constructImagePath(){
     imagePath = pathStream.str();
     
     if (!fs::exists(imagePath)) {
-        throw std::runtime_error("Image file not found: " + imagePath);
+        throw ErrorHandling::FileError("Player image not found: " + imagePath);
     }
 
 }
 
-bool Player::loadImage(sf::Texture& texture) const{
-    return texture.loadFromFile(imagePath);
+bool Player::loadImage(sf::Texture& texture) const {
+    try {
+        auto& resourceManager = ResourceManager::getInstance();
+        auto loadedTexture = resourceManager.loadTexture(imagePath);
+        texture = *loadedTexture;
+        return true;
+    } catch (const ErrorHandling::ResourceError& e) {
+        std::cerr << e.what() << std::endl;
+        return false;
+    }
 }
 
 std::vector<Player> Player::loadPlayersFromCSV() {
@@ -34,7 +41,7 @@ std::vector<Player> Player::loadPlayersFromCSV() {
     std::ifstream file(PLAYER_LIST_PATH);
 
     if(!file.is_open()){
-        throw std::runtime_error("Error: Unable to open CSV file at " + std::string(PLAYER_LIST_PATH));
+        throw ErrorHandling::FileError("Unable to open player CSV file: " + std::string(PLAYER_LIST_PATH));
     }
     
     std::string line;

@@ -15,7 +15,7 @@ constexpr float LABEL_PADDING_RATIO = 0.25f;
 constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
 constexpr size_t NUM_PLAYER_TO_RANK = 6;
 
-WhoHePlayFor::WhoHePlayFor(sf::RenderWindow& window, const sf::Font& font) 
+WhoHePlayFor::WhoHePlayFor(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : GameBase(window, font), currentPlayerIndex(0) {
     resetGame();
 }

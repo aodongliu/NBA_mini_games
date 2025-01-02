@@ -10,15 +10,15 @@ Button::Button() {
     buttonText.setCharacterSize(0);
 }
 
-Button::Button(const sf::Font& font, const std::string& text, const sf::Vector2f& position, 
-               const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor) 
+Button::Button(std::shared_ptr<sf::Font> font, const std::string& text, const sf::Vector2f& position, 
+               const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor)
         : Button() {
     buttonShape.setPosition(position);
     buttonShape.setSize(size);
     buttonShape.setFillColor(bgColor);
     buttonShape.setOutlineThickness(2);
 
-    buttonText.setFont(font);
+    buttonText.setFont(*font);
     buttonText.setString(text);
     buttonText.setCharacterSize(14); // Default font size
     buttonText.setFillColor(textColor);

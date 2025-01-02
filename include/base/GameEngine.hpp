@@ -10,7 +10,7 @@
 
 class GameEngine {
 public:
-    GameEngine(sf::RenderWindow& window, sf::Font& font);
+    GameEngine(sf::RenderWindow& window, std::shared_ptr<sf::Font> font);
     void run();
     void setGlobalUI(const std::shared_ptr<GlobalUI>& newGlobalUI);
     void setState(const std::shared_ptr<WindowBase>& newState);

@@ -8,7 +8,7 @@
 class GameBase : public WindowBase {
 
 public:
-    GameBase(sf::RenderWindow& window, const sf::Font& font);
+    GameBase(sf::RenderWindow& window, std::shared_ptr<sf::Font> font);
     virtual ~GameBase() = default;
 
     virtual void handleEvent(const sf::Event& event) = 0;
@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    const sf::Font& font;
+    std::shared_ptr<sf::Font> font;
     Label instructionLabel;
     Label errorLabel;
     sf::Clock errorClock;

@@ -8,7 +8,7 @@
 class WhoHePlayFor : public GameBase {
 
 public:
-    WhoHePlayFor(sf::RenderWindow& window, const sf::Font& font);
+    WhoHePlayFor(sf::RenderWindow& window, std::shared_ptr<sf::Font> font);
 
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;

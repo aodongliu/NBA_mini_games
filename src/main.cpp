@@ -7,13 +7,17 @@
 #include "game/RankingGame.hpp"
 #include <iostream>
 #include "config.hpp"
+#include "utils/ResourceManager.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "NBA Mini Games");
 
-    sf::Font font;
-    if (!font.loadFromFile(FONT_PATH "/Arial.ttf")) {
-        std::cerr << "Error: Failed to load font.\n";
+    std::shared_ptr<sf::Font> font;
+    try {
+        auto& resourceManager = ResourceManager::getInstance();
+        font = resourceManager.loadFont(std::string(FONT_PATH) + "/Arial.ttf");
+    } catch (const ErrorHandling::ResourceError& e) {
+        std::cerr << e.what() << std::endl;
         return -1;
     }
     

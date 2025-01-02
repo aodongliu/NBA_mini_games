@@ -1,6 +1,6 @@
 #include "game/MainMenu.hpp"
 
-MainMenu::MainMenu(sf::RenderWindow& window, const sf::Font& font)
+MainMenu::MainMenu(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : WindowBase(window), font(font), selectedOption(0), selectedOptionTriggered(false) {}
 
 void MainMenu::addOption(const std::string& optionText, std::function<void()> callback) { 

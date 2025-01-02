@@ -7,7 +7,7 @@
 class Button : public UIComponent {
 public:
     Button();
-    Button(const sf::Font& font, const std::string& text, const sf::Vector2f& position, 
+    Button(std::shared_ptr<sf::Font> font, const std::string& text, const sf::Vector2f& position, 
            const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& textColor);
     
     void setCallback(std::function<void()> onClickCallback);

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <random>
 
-GameBase::GameBase(sf::RenderWindow& window, const sf::Font& font) 
+GameBase::GameBase(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : WindowBase(window), font(font), errorClock(), quitConfirmation(false) {
 }
 

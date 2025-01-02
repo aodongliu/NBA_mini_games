@@ -1,6 +1,6 @@
 #include "base/GameEngine.hpp"
 
-GameEngine::GameEngine(sf::RenderWindow& window, sf::Font& font)
+GameEngine::GameEngine(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : window(window) {
     globalUI = std::make_shared<GlobalUI>(window, font);
     // Create each game
