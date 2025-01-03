@@ -1,4 +1,5 @@
 #include "ui/Button.hpp"
+#include <iostream>
 
 Button::Button() {
     buttonShape.setSize(sf::Vector2f(0, 0));
@@ -54,21 +55,24 @@ bool Button::isClicked(const sf::Event& event, const sf::Vector2i& mousePos) con
 }
 
 bool Button::isDoubleClicked(const sf::Event& event, const sf::Vector2i& mousePos) {
-    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+    static sf::Clock globalClickClock;
+    static Button* lastClickedButton = nullptr;
+    
+    if (event.type == sf::Event::MouseButtonPressed && 
+        event.mouseButton.button == sf::Mouse::Left) {
+        
         if (buttonShape.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-            if (doubleClickClock.getElapsedTime().asSeconds() < 0.3f) {
-                doubleClickFlag = true; // Double click detected
-            } else {
-                doubleClickFlag = false; // Single click
+            if (lastClickedButton == this && 
+                globalClickClock.getElapsedTime().asSeconds() < 0.5f) {
+                lastClickedButton = nullptr;
+                return true;
             }
-            doubleClickClock.restart();
+            
+            lastClickedButton = this;
+            globalClickClock.restart();
         }
     }
-    return doubleClickFlag;
-}
-
-void Button::resetDoubleClickFlag() {
-    doubleClickFlag = false;
+    return false;
 }
 
 void Button::setTheme(const sf::Color& bgColor, const sf::Color& textColor, const sf::Color& borderColor) {

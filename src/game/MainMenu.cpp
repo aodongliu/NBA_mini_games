@@ -22,10 +22,7 @@ void MainMenu::addOption(const std::string& optionText, std::function<void()> ca
 
 void MainMenu::reset() {
     selectedOption = 0;
-    selectedOptionTriggered = false; 
-    for (auto& button : menuButtons) {
-        button.resetDoubleClickFlag();
-    }
+    selectedOptionTriggered = false;
 }
 
 void MainMenu::handleEvent(const sf::Event& event) {

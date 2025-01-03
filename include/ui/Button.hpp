@@ -20,7 +20,6 @@ public:
     bool isDoubleClicked(const sf::Event& event, const sf::Vector2i& mousePos);
     
     void triggerCallback();
-    void resetDoubleClickFlag();
     void render(sf::RenderWindow& window) override;
 
 private:
@@ -29,7 +28,6 @@ private:
 
     std::function<void()> onClick;
     sf::Clock doubleClickClock;
-    bool doubleClickFlag;
 
     void centerText();
 };
