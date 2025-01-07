@@ -26,5 +26,6 @@ private:
     sf::Text labelText;
     std::string rawText;
     float maxWidth; 
-    std::shared_ptr<sf::Font> font; // Store the font as shared_ptr
+    std::shared_ptr<sf::Font> font;
+    void updateText();
 };
