@@ -15,6 +15,7 @@ public:
     void render(sf::RenderWindow& window) override;
     void resetGame() override;
     void updateTheme() override;
+    void loadPlayers(size_t count) override;
     
 private:
 

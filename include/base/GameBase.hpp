@@ -16,6 +16,7 @@ public:
     virtual void render(sf::RenderWindow& window) = 0;
     virtual void resetGame() = 0;
     virtual void updateTheme() = 0;
+    virtual void loadPlayers(size_t count);
 
     GameState GameState;
 
@@ -29,5 +30,4 @@ protected:
     bool quitConfirmation;
 
     virtual void setUpLabels() = 0;
-    void loadPlayers(size_t count);
 };

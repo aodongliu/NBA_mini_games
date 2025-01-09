@@ -8,6 +8,7 @@
 #include <iostream>
 #include "utils/config.hpp"
 #include "utils/ResourceManager.hpp"
+#include "utils/DatabaseManager.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "NBA Mini Games");

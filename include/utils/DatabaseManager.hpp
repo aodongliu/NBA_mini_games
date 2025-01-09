@@ -1,16 +1,13 @@
 #pragma once
-#include <sqlite3.h>
 #include <string>
 #include <vector>
 #include <memory>
-#include <optional>
-
-class Player;
-class Team;
+#include <sqlite3.h>
 
 class DatabaseManager {
 public:
-    struct PlayerData {
+    // Matches database schema from schema.py exactly
+    struct PlayerRecord {
         int id;
         std::string firstName;
         std::string lastName;
@@ -27,17 +24,3 @@ public:
         std::string abbreviation;
         std::string logoPath;
     };
-
-    DatabaseManager();
-    ~DatabaseManager();
-
-    std::optional<PlayerData> getPlayerById(int id);
-    std::optional<TeamData> getTeamById(const std::string& id);
-    std::vector<PlayerData> getAllPlayers();
-    std::vector<TeamData> getAllTeams();
-    std::vector<PlayerData> getPlayersByTeam(const std::string& teamId);
-
-private:
-    sqlite3* db;
-    void checkError(int result, const std::string& operation);
-}; 

@@ -5,5 +5,5 @@ const std::string RESOURCES_PATH = "@RESOURCES_PATH@";
 const std::string FONT_PATH = "@FONT_PATH@";
 const std::string PLAYER_IMAGES_PATH = "@PLAYER_IMAGES_PATH@";
 const std::string TEAM_LOGOS_PATH = "@TEAM_LOGOS_PATH@";
-const std::string DATABASE_PATH = "@DATABASE_PATH@";
+const std::string DB_PATH = "@DATABASE_PATH@";
 

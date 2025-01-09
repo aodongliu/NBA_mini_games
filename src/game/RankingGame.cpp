@@ -15,6 +15,8 @@ constexpr float LABEL_PADDING_RATIO = 0.25f;
 constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
 constexpr size_t NUM_PLAYER_TO_RANK = 6;
 
+constexpr float MIN_PPG = 15.0f;
+
 RankingGame::RankingGame(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : GameBase(window, font), currentPlayerIndex(0) {
     resetGame();
@@ -229,4 +231,24 @@ void RankingGame::updateTheme() {
     const ThemeConfig& theme = ThemeManager::getInstance().getThemeConfig();
     inputLabel.setColor(theme.highlightTextColor);
     inputLabel.setColor(theme.highlightTextColor);
+}
+
+void RankingGame::loadPlayers(size_t count) {
+    try {
+        auto allPlayers = Player::getPlayersAbovePoints(MIN_PPG);
+        if (allPlayers.empty()) {
+            std::cerr << "No eligible players found\n";
+            return;
+        }
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::shuffle(allPlayers.begin(), allPlayers.end(), gen);
+
+        size_t actualCount = std::min(count, allPlayers.size());
+        players.assign(allPlayers.begin(), allPlayers.begin() + actualCount);
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading players: " << e.what() << std::endl;
+    }
 }
