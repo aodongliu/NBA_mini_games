@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <utils/colors.hpp>
 #include <base/enums.hpp>
-#include "config.hpp"
+#include "utils/config.hpp"
 #include <iostream>
 
 // Singleton class that handles theme colors

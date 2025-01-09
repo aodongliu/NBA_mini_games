@@ -1,2 +1,29 @@
+.DS_Store
 build*
 .vscode*
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.env/
+
+# IDE files
+.vscode/
+.idea/
+
+# Database files
+#resources/data/*.db
+
+# Downloaded images (if you want to ignore them)
+#resources/player_images/*
+#resources/team_logos/*
+#!resources/player_images/.gitkeep
+#!resources/team_logos/.gitkeep
+
+# Build directories
+build/
+dist/

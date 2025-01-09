@@ -15,6 +15,7 @@ constexpr float LABEL_PADDING_RATIO = 0.25f;
 constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
 constexpr size_t NUM_PLAYER_TO_RANK = 6;
 
+
 WhoHePlayFor::WhoHePlayFor(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     : GameBase(window, font), currentPlayerIndex(0) {
     resetGame();
@@ -27,30 +28,31 @@ void WhoHePlayFor::resetGame() {
     GameState = GameState::Running;
     
     setUpLabels();
-    loadRandomPlayers(size_t(NUM_PLAYER_TO_RANK));
+    loadPlayers(size_t(NUM_PLAYER_TO_RANK));
     loadNextPlayer();
 }
 
 void WhoHePlayFor::setUpLabels() {
     const auto& theme = ThemeManager::getInstance().getThemeConfig();
-
-    instructionLabel = Label(font, "Rank this player (1-10). Press Enter to confirm, ESC to quit.",
-                             {windowSize.x * 0.05f, windowSize.y * 0.10f},
-                             theme.instructionTextColor, 24, windowSize.x * 0.85f);
-    errorLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.325f},
-                       theme.warningTextColor, 17, windowSize.x * 0.5f);
-    errorClock.restart();
+    
+    instructionLabel = Label(font, "Which team does this player play for?",
+                           {windowSize.x * 0.05f, windowSize.y * 0.10f},
+                           theme.instructionTextColor, 24);
+                           
+    errorLabel = Label(font, "",
+                      {windowSize.x * 0.05f, windowSize.y * 0.325f},
+                      theme.warningTextColor, 17);
 }
 
 void WhoHePlayFor::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
-        instructionLabel.setText("Ranking complete! Press Enter to retry or ESC to return to the menu.");
+        instructionLabel.setText("Game Over! Press Enter to retry or ESC to return to the menu.");
         GameState = GameState::Ending;
         return;
     }
 
     const Player& player = players[currentPlayerIndex];
-    if (!player.loadImage(currentPlayerTexture)) {
+    if (!ResourceManager::getInstance().loadTexture(player.getHeadshotPath(), currentPlayerTexture)) {
         errorLabel.setText("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
         errorClock.restart();
         return;
@@ -146,4 +148,9 @@ void WhoHePlayFor::render(sf::RenderWindow& window) {
 
     // Render player sprite and rankings
     window.draw(currentPlayerSprite);
+}
+
+void WhoHePlayFor::updateTheme() {
+    GameBase::updateTheme();  // Call base class implementation
+    // Add any WhoHePlayFor-specific theme updates here
 }

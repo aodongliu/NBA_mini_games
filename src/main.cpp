@@ -6,7 +6,7 @@
 #include "game/MainMenu.hpp"
 #include "game/RankingGame.hpp"
 #include <iostream>
-#include "config.hpp"
+#include "utils/config.hpp"
 #include "utils/ResourceManager.hpp"
 
 int main() {
@@ -16,7 +16,7 @@ int main() {
     try {
         auto& resourceManager = ResourceManager::getInstance();
         font = resourceManager.loadFont(std::string(FONT_PATH) + "/Arial.ttf");
-    } catch (const ErrorHandling::ResourceError& e) {
+    } catch (const ResourceError& e) {
         std::cerr << e.what() << std::endl;
         return -1;
     }

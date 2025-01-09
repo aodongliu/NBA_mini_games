@@ -21,28 +21,31 @@ RankingGame::RankingGame(sf::RenderWindow& window, std::shared_ptr<sf::Font> fon
 }
 
 void RankingGame::resetGame() {
-    rankings.clear();
     players.clear();
     currentPlayerIndex = 0;
     quitConfirmation = false;
-    userInput.clear();
     GameState = GameState::Running;
     
     setUpLabels();
-    loadRandomPlayers(size_t(NUM_PLAYER_TO_RANK));
+    loadPlayers(size_t(NUM_PLAYER_TO_RANK));
     loadNextPlayer();
 }
 
 void RankingGame::setUpLabels() {
     const auto& theme = ThemeManager::getInstance().getThemeConfig();
 
-    instructionLabel = Label(font, "Rank this player (1-10). Press Enter to confirm, ESC to quit.",
-                             {windowSize.x * 0.05f, windowSize.y * 0.10f},
-                             theme.instructionTextColor, 24, windowSize.x * 0.85f);
-    errorLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.325f},
-                       theme.warningTextColor, 17, windowSize.x * 0.5f);
-    inputLabel = Label(font, "", {windowSize.x * 0.05f, windowSize.y * 0.25f},
-                       theme.highlightTextColor, 20, windowSize.x * 0.5f);
+    instructionLabel = Label(font, 
+        "Rank this player (1-" + std::to_string(NUM_PLAYER_TO_RANK) + "). Press Enter to confirm, ESC to quit.",
+        {windowSize.x * 0.05f, windowSize.y * 0.10f},
+        theme.instructionTextColor, 24, windowSize.x * 0.85f);
+    
+    errorLabel = Label(font, "", 
+        {windowSize.x * 0.05f, windowSize.y * 0.325f},
+        theme.warningTextColor, 17, windowSize.x * 0.5f);
+    
+    inputLabel = Label(font, "", 
+        {windowSize.x * 0.05f, windowSize.y * 0.25f},
+        theme.highlightTextColor, 20, windowSize.x * 0.5f);
 
     errorClock.restart();
 }
@@ -56,7 +59,7 @@ void RankingGame::loadNextPlayer() {
     }
 
     const Player& player = players[currentPlayerIndex];
-    if (!player.loadImage(currentPlayerTexture)) {
+    if (!ResourceManager::getInstance().loadTexture(player.getHeadshotPath(), currentPlayerTexture)) {
         errorLabel.setText("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
         errorClock.restart();
         return;

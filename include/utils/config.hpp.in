@@ -1,41 +1,9 @@
 #pragma once
+#include <string>
 
-#include "utils/ErrorHandler.hpp"
-
-// Paths to assets
-#define FONT_PATH "@FONT_PATH@"
-#define PLAYER_IMAGES_PATH "@PLAYER_IMAGES_PATH@"
-#define PLAYER_LIST_PATH "@PLAYER_LIST_PATH@"
-#define TEAM_LOGOS_PATH "@TEAM_LOGOS_PATH@"
-
-// Version information
-#define NBA_MINI_GAMES_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
-#define NBA_MINI_GAMES_VERSION_MINOR "@PROJECT_VERSION_MINOR@"
-
-namespace Config {
-    inline void validatePaths() {
-        ErrorHandling::checkFilePath(FONT_PATH);
-        ErrorHandling::checkFilePath(PLAYER_IMAGES_PATH);
-        ErrorHandling::checkFilePath(PLAYER_LIST_PATH);
-        ErrorHandling::checkFilePath(TEAM_LOGOS_PATH);
-    }
-
-    inline void validateVersion() {
-        try {
-            int major = std::stoi(NBA_MINI_GAMES_VERSION_MAJOR);
-            int minor = std::stoi(NBA_MINI_GAMES_VERSION_MINOR);
-            
-            ErrorHandling::checkVersion(major, minor);
-            
-            // Additional validation for version numbers
-            if (major == 0 && minor == 0) {
-                throw ErrorHandling::ConfigError("Version numbers cannot be 0.0");
-            }
-        } catch (const std::invalid_argument& e) {
-            throw ErrorHandling::ConfigError("Invalid version format: " + std::string(e.what()));
-        } catch (const std::out_of_range& e) {
-            throw ErrorHandling::ConfigError("Version number out of range: " + std::string(e.what()));
-        }
-    }
-}
+const std::string RESOURCES_PATH = "@RESOURCES_PATH@";
+const std::string FONT_PATH = "@FONT_PATH@";
+const std::string PLAYER_IMAGES_PATH = "@PLAYER_IMAGES_PATH@";
+const std::string TEAM_LOGOS_PATH = "@TEAM_LOGOS_PATH@";
+const std::string DATABASE_PATH = "@DATABASE_PATH@";
 

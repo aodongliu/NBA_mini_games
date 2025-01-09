@@ -2,6 +2,7 @@
 
 #include "base/GameBase.hpp"
 #include "game/Player.hpp"
+#include "utils/ResourceManager.hpp"
 #include <vector>
 #include <map>
 #include <memory>
@@ -13,6 +14,7 @@ public:
     void handleEvent(const sf::Event& event) override;
     void render(sf::RenderWindow& window) override;
     void resetGame() override;
+    void updateTheme() override;
     
 private:
 

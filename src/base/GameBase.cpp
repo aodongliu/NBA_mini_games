@@ -4,21 +4,34 @@
 #include <random>
 
 GameBase::GameBase(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
-    : WindowBase(window), font(font), errorClock(), quitConfirmation(false) {
+    : WindowBase(window)
+    , font(font)
+    , numPlayers(6)  // or whatever default you want
+    , quitConfirmation(false)
+    , GameState(GameState::Running)
+{
+    loadPlayers(numPlayers);
 }
 
-void GameBase::loadRandomPlayers(size_t numPlayers) {
+void GameBase::loadPlayers(size_t count) {
     try {
-        players = Player::loadPlayersFromCSV();
+        DatabaseManager db;
+        auto allPlayers = db.getAllPlayers();
+        
+        // Randomly shuffle players
         std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(players.begin(), players.end(), g);
-        players.resize(std::min(players.size(), numPlayers));
-        if (players.empty()) {
-            throw std::runtime_error("Error: No players found in the CSV.");
+        std::mt19937 gen(rd());
+        std::shuffle(allPlayers.begin(), allPlayers.end(), gen);
+        
+        // Take only the number of players we need
+        size_t playerCount = std::min(count, allPlayers.size());
+        players.clear();
+        
+        for (size_t i = 0; i < playerCount; ++i) {
+            players.emplace_back(allPlayers[i]);
         }
     } catch (const std::exception& e) {
-        std::cerr << e.what() << "\n";
+        std::cerr << "Error loading players: " << e.what() << std::endl;
     }
 }
 

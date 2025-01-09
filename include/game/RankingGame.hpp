@@ -2,6 +2,7 @@
 
 #include "base/GameBase.hpp"
 #include "game/Player.hpp"
+#include "utils/ResourceManager.hpp"
 #include <vector>
 #include <map>
 #include <memory>
