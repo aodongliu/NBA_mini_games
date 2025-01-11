@@ -1,5 +1,6 @@
 #include "base/GameBase.hpp"
 #include "game/Player.hpp"
+#include "utils/ThemeManager.hpp"
 #include <iostream>
 
 GameBase::GameBase(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
@@ -7,7 +8,7 @@ GameBase::GameBase(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     , font(font)
     , numPlayers(6)
     , quitConfirmation(false)
-    , GameState(GameState::Running)
+    , gameState(GameState::Running)
 {
     loadPlayers(numPlayers);
 }

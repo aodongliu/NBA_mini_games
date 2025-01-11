@@ -26,7 +26,7 @@ void RankingGame::resetGame() {
     players.clear();
     currentPlayerIndex = 0;
     quitConfirmation = false;
-    GameState = GameState::Running;
+    gameState = GameState::Running;
     
     setUpLabels();
     loadPlayers(size_t(NUM_PLAYER_TO_RANK));
@@ -56,7 +56,7 @@ void RankingGame::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
         instructionLabel.setText("Ranking complete! Press Enter to retry or ESC to return to the menu.");
         saveRankingToCSV();
-        GameState = GameState::Ending;
+        gameState = GameState::Ending;
         return;
     }
 
@@ -107,12 +107,12 @@ bool RankingGame::isValidInput(const std::string& input, int& rank, std::string&
 
 void RankingGame::handleEvent(const sf::Event& event) {
     // Handle events when the game has ended
-    if (GameState == GameState::Ending) {
+    if (gameState == GameState::Ending) {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Enter) {
                 resetGame(); // Restart the game
             } else if (event.key.code == sf::Keyboard::Escape) {
-                GameState = GameState::Ended; // Exit to main menu
+                gameState = GameState::Ended; // Exit to main menu
             }
         }
         return; // Exit early since no further handling is needed
@@ -122,7 +122,7 @@ void RankingGame::handleEvent(const sf::Event& event) {
     if (quitConfirmation) {
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
             instructionLabel.setText("Exiting to the menu...");
-            GameState = GameState::Ended;
+            gameState = GameState::Ended;
         } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
             quitConfirmation = false;
             instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
@@ -164,8 +164,8 @@ void RankingGame::handleEvent(const sf::Event& event) {
 
 void RankingGame::render(sf::RenderWindow& window) {
     // Render Labels
-    unsigned int textSize = (GameState == GameState::Ending or quitConfirmation) ? 30 : 24;
-    sf::Uint32 textStyle = (GameState == GameState::Ending or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
+    unsigned int textSize = (gameState == GameState::Ending or quitConfirmation) ? 30 : 24;
+    sf::Uint32 textStyle = (gameState == GameState::Ending or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
     instructionLabel.setSize(textSize);
     instructionLabel.setStyle(textStyle);
     instructionLabel.render(window);

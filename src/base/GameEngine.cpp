@@ -52,7 +52,7 @@ void GameEngine::run() {
         }
 
         auto curState = std::dynamic_pointer_cast<GameBase>(currentState);
-        if (curState && curState->GameState == GameState::Ended) {
+        if (curState && curState->gameState == GameState::Ended) {
             mainMenu->reset();
             setState(mainMenu); 
         }

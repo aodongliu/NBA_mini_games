@@ -3,6 +3,7 @@
 #include "base/WindowBase.hpp"
 #include "game/Player.hpp"
 #include "utils/DatabaseManager.hpp"
+#include "base/enums.hpp"
 #include <vector>
 #include <memory>
 
@@ -15,10 +16,10 @@ public:
     virtual void handleEvent(const sf::Event& event) = 0;
     virtual void render(sf::RenderWindow& window) = 0;
     virtual void resetGame() = 0;
-    virtual void updateTheme() = 0;
+    virtual void updateTheme();
     virtual void loadPlayers(size_t count);
 
-    GameState GameState;
+    GameState gameState;
 
 protected:
     std::vector<Player> players;
