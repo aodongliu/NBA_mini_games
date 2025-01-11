@@ -125,4 +125,74 @@ DatabaseManager::PlayerRecord DatabaseManager::getPlayerById(int id) {
 
 std::vector<DatabaseManager::PlayerRecord> DatabaseManager::getPlayersByTeam(const std::string& teamId) {
     return getPlayers("p.team_id = ?", {teamId});
+}
+
+std::vector<DatabaseManager::TeamData> DatabaseManager::getTeams() {
+    std::vector<TeamData> teams;
+    const char* query = "SELECT id, name, abbreviation, logo_path, conference, division FROM teams";
+    
+    sqlite3_stmt* stmt;
+    checkError(sqlite3_prepare_v2(db, query, -1, &stmt, nullptr), "prepare teams statement");
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        TeamData team;
+        
+        const unsigned char* id = sqlite3_column_text(stmt, 0);
+        team.id = id ? reinterpret_cast<const char*>(id) : "";
+        
+        const unsigned char* name = sqlite3_column_text(stmt, 1);
+        team.name = name ? reinterpret_cast<const char*>(name) : "";
+        
+        const unsigned char* abbreviation = sqlite3_column_text(stmt, 2);
+        team.abbreviation = abbreviation ? reinterpret_cast<const char*>(abbreviation) : "";
+        
+        const unsigned char* logo_path = sqlite3_column_text(stmt, 3);
+        team.logo_path = logo_path ? reinterpret_cast<const char*>(logo_path) : "";
+        
+        const unsigned char* conference = sqlite3_column_text(stmt, 4);
+        team.conference = conference ? reinterpret_cast<const char*>(conference) : "";
+        
+        const unsigned char* division = sqlite3_column_text(stmt, 5);
+        team.division = division ? reinterpret_cast<const char*>(division) : "";
+        
+        teams.push_back(team);
+    }
+    
+    sqlite3_finalize(stmt);
+    return teams;
+}
+
+DatabaseManager::TeamData DatabaseManager::getTeamById(const std::string& teamId) {
+    TeamData team;
+    const char* query = "SELECT id, name, abbreviation, logo_path, conference, division FROM teams WHERE id = ?";
+    
+    sqlite3_stmt* stmt;
+    checkError(sqlite3_prepare_v2(db, query, -1, &stmt, nullptr), "prepare team by ID statement");
+    
+    checkError(sqlite3_bind_text(stmt, 1, teamId.c_str(), -1, SQLITE_STATIC), "bind team ID");
+    
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char* id = sqlite3_column_text(stmt, 0);
+        team.id = id ? reinterpret_cast<const char*>(id) : "";
+        
+        const unsigned char* name = sqlite3_column_text(stmt, 1);
+        team.name = name ? reinterpret_cast<const char*>(name) : "";
+        
+        const unsigned char* abbreviation = sqlite3_column_text(stmt, 2);
+        team.abbreviation = abbreviation ? reinterpret_cast<const char*>(abbreviation) : "";
+        
+        const unsigned char* logo_path = sqlite3_column_text(stmt, 3);
+        team.logo_path = logo_path ? reinterpret_cast<const char*>(logo_path) : "";
+        
+        const unsigned char* conference = sqlite3_column_text(stmt, 4);
+        team.conference = conference ? reinterpret_cast<const char*>(conference) : "";
+        
+        const unsigned char* division = sqlite3_column_text(stmt, 5);
+        team.division = division ? reinterpret_cast<const char*>(division) : "";
+    } else {
+        throw std::runtime_error("Team not found");
+    }
+    
+    sqlite3_finalize(stmt);
+    return team;
 } 

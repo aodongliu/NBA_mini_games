@@ -22,12 +22,17 @@ public:
     void triggerCallback();
     void render(sf::RenderWindow& window) override;
 
+    void setIcon(const sf::Texture& texture);
+
 private:
     sf::RectangleShape buttonShape;
     sf::Text buttonText;
 
     std::function<void()> onClick;
     sf::Clock doubleClickClock;
+
+    sf::Sprite icon;
+    bool hasIcon = false;
 
     void centerText();
 };

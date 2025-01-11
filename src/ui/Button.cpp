@@ -33,16 +33,29 @@ void Button::setCallback(std::function<void()> onClickCallback) {
 void Button::render(sf::RenderWindow& window) {
     if (!isVisible()) return;
     window.draw(buttonShape);
+    if (hasIcon) {
+        window.draw(icon);
+    }
     window.draw(buttonText);
 }
 
 void Button::centerText() {
     sf::FloatRect textBounds = buttonText.getLocalBounds();
     sf::FloatRect shapeBounds = buttonShape.getGlobalBounds();
-    buttonText.setPosition(
-        shapeBounds.left + (shapeBounds.width - textBounds.width) / 2 - textBounds.left,
-        shapeBounds.top + (shapeBounds.height - textBounds.height) / 2 - textBounds.top
-    );
+    
+    float xPos;
+    if (hasIcon) {
+        // If there's an icon, position text to the right of it
+        float iconWidth = icon.getGlobalBounds().width;
+        xPos = shapeBounds.left + iconWidth + 4;
+    } else {
+        // If no icon, center the text
+        xPos = shapeBounds.left + (shapeBounds.width - textBounds.width) / 2;
+    }
+    
+    float yPos = shapeBounds.top + (shapeBounds.height - textBounds.height) / 2;
+    
+    buttonText.setPosition(xPos - textBounds.left, yPos - textBounds.top);
 }
 
 bool Button::isHovered(const sf::Vector2i& mousePos) const {
@@ -93,5 +106,31 @@ void Button::triggerCallback() {
     if (onClick) {
         onClick();
     }
+}
+
+void Button::setIcon(const sf::Texture& texture) {
+    icon.setTexture(texture);
+    
+    // Scale icon to fit height of button while maintaining aspect ratio
+    float scale = (buttonShape.getSize().y - 4) / texture.getSize().y;
+    icon.setScale(scale, scale);
+    
+    // Position icon on left side of button
+    icon.setPosition(
+        buttonShape.getPosition().x + 2,
+        buttonShape.getPosition().y + 2
+    );
+    
+    // Adjust text position to make room for icon
+    float textOffset = icon.getGlobalBounds().width + 4;
+    buttonText.setPosition(
+        buttonShape.getPosition().x + textOffset,
+        buttonText.getPosition().y
+    );
+    
+    hasIcon = true;
+
+    // Remove debugging output
+    // std::cout << "Icon set for button: " << buttonText.getString().toAnsiString() << std::endl;
 }
 

@@ -38,6 +38,8 @@ public:
         std::string name;
         std::string abbreviation;
         std::string logo_path;
+        std::string conference;
+        std::string division;
     };
 
     static DatabaseManager& getInstance();
@@ -45,6 +47,9 @@ public:
                                        const std::vector<std::string>& params = {});
     PlayerRecord getPlayerById(int id);
     std::vector<PlayerRecord> getPlayersByTeam(const std::string& teamId);
+    
+    std::vector<TeamData> getTeams();
+    TeamData getTeamById(const std::string& teamId);
 
 private:
     DatabaseManager();

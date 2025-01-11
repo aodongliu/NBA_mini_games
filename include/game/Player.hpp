@@ -18,6 +18,11 @@ public:
     const std::string& getHeight() const { return height; }
     const std::string& getWeight() const { return weight; }
     
+    // Updated method to get the team
+    DatabaseManager::TeamData getTeam() const {
+        return DatabaseManager::getInstance().getTeamById(team_id);
+    }
+
     // Stats
     float getPointsPerGame() const { return points_per_game; }
     float getReboundsPerGame() const { return rebounds_per_game; }

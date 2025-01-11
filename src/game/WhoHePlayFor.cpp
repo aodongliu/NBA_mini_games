@@ -1,23 +1,19 @@
 #include "game/WhoHePlayFor.hpp"
+#include "utils/ThemeManager.hpp"
 #include <iostream>
-#include <fstream>
 #include <random>
 
-// Left section: Display player pictures
-constexpr float LEFT_SECTION_WIDTH_RATIO = 0.6f;
-constexpr float PLAYER_SPRITE_MAX_WIDTH_RATIO = 0.3f;
-// Right section: Display a live ranking tale
-constexpr float RIGHT_SECTION_WIDTH_RATIO = 0.3f;
-constexpr float RANKING_TABLE_YSTART_RATIO = 0.3f;
-constexpr float RANKING_TABLE_HEIGHT_RATIO = 0.5f;
-constexpr float LABEL_PADDING_RATIO = 0.25f;
-
-constexpr float ERROR_MESSAGE_DISPLAY_TIME = 3.0f;
-constexpr size_t NUM_PLAYER_TO_RANK = 6;
-
+// Constants for layout
+constexpr float PLAYER_SECTION_HEIGHT_RATIO = 0.4f;
+constexpr float TEAMS_SECTION_START_RATIO = 0.45f;
+constexpr float DIVISION_ROW_HEIGHT = 40.0f;  // Height for each division row
+constexpr float CONFERENCE_GAP = 30.0f;  // Gap between conferences
+constexpr int TEAMS_PER_ROW = 5;  // 5 teams per division
 
 WhoHePlayFor::WhoHePlayFor(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
-    : GameBase(window, font), currentPlayerIndex(0) {
+    : GameBase(window, font)
+    , currentPlayerIndex(0)
+{
     resetGame();
 }
 
@@ -28,33 +24,33 @@ void WhoHePlayFor::resetGame() {
     gameState = GameState::Running;
     
     setUpLabels();
-    loadPlayers(size_t(NUM_PLAYER_TO_RANK));
+    loadPlayers(1); // Load one player at a time
     loadNextPlayer();
+    createTeamButtons();
 }
 
 void WhoHePlayFor::setUpLabels() {
     const auto& theme = ThemeManager::getInstance().getThemeConfig();
     
-    instructionLabel = Label(font, "Which team does this player play for?",
-                           {windowSize.x * 0.05f, windowSize.y * 0.10f},
-                           theme.instructionTextColor, 24);
-                           
-    errorLabel = Label(font, "",
-                      {windowSize.x * 0.05f, windowSize.y * 0.325f},
-                      theme.warningTextColor, 17);
+    instructionLabel = Label(font, 
+        "Which team does this player play for? Click the correct team button.",
+        {windowSize.x * 0.05f, windowSize.y * 0.05f},
+        theme.instructionTextColor, 24, windowSize.x * 0.9f);
+    
+    errorLabel = Label(font, "", 
+        {windowSize.x * 0.05f, windowSize.y * 0.15f},
+        theme.warningTextColor, 20);
 }
 
 void WhoHePlayFor::loadNextPlayer() {
     if (currentPlayerIndex >= players.size()) {
-        instructionLabel.setText("Game Over! Press Enter to retry or ESC to return to the menu.");
-        gameState = GameState::Ending;
-        return;
+        loadPlayers(1);
+        currentPlayerIndex = 0;
     }
 
     const Player& player = players[currentPlayerIndex];
     if (!ResourceManager::getInstance().loadTexture(player.getHeadshotPath(), currentPlayerTexture)) {
         errorLabel.setText("Failed to load image for player: " + player.getFirstName() + " " + player.getLastName());
-        errorClock.restart();
         return;
     }
 
@@ -64,93 +60,179 @@ void WhoHePlayFor::loadNextPlayer() {
 void WhoHePlayFor::configurePlayerSprite() {
     currentPlayerSprite.setTexture(currentPlayerTexture);
 
-    float leftWidth = windowSize.x * LEFT_SECTION_WIDTH_RATIO;
-    float maxSpriteWidth = leftWidth * PLAYER_SPRITE_MAX_WIDTH_RATIO;
-    float scale = maxSpriteWidth / currentPlayerTexture.getSize().x;
-
+    // Scale sprite to fit in the top section
+    float maxHeight = windowSize.y * PLAYER_SECTION_HEIGHT_RATIO;
+    float scale = maxHeight / currentPlayerTexture.getSize().y * 0.8f; // Reduce size by 20%
     currentPlayerSprite.setScale(scale, scale);
 
-    float spriteX = (leftWidth - currentPlayerSprite.getGlobalBounds().width) / 2;
-    float spriteY = (windowSize.y - currentPlayerSprite.getGlobalBounds().height) * 2 / 3;
+    // Center the sprite horizontally
+    float spriteX = (windowSize.x - currentPlayerSprite.getGlobalBounds().width) / 2;
+    float spriteY = windowSize.y * 0.10f; // Adjust Y position to avoid overlap
     currentPlayerSprite.setPosition(spriteX, spriteY);
 }
 
+void WhoHePlayFor::createTeamButtons() {
+    auto& db = DatabaseManager::getInstance();
+    auto teams = db.getTeams();
+    const auto& theme = ThemeManager::getInstance().getThemeConfig();
+    
+    // Group teams by conference and division
+    std::map<std::string, std::map<std::string, std::vector<DatabaseManager::TeamData>>> groupedTeams;
+    for (const auto& team : teams) {
+        groupedTeams[team.conference][team.division].push_back(team);
+    }
+
+    teamButtons.clear();
+    
+    // Calculate button dimensions based on window size
+    float buttonWidth = (windowSize.x - 100.0f) / TEAMS_PER_ROW;  // 100px total padding
+    float buttonHeight = 35.0f;
+    float horizontalPadding = 10.0f;
+    
+    float startY = windowSize.y * TEAMS_SECTION_START_RATIO;
+    float currentY = startY;
+
+    // Create buttons for Eastern Conference
+    if (groupedTeams.count("Eastern")) {
+        int rowIndex = 0;
+        for (const auto& [division, divisionTeams] : groupedTeams["Eastern"]) {
+            float currentX = 50.0f;  // Start 50px from left edge
+            
+            for (const auto& team : divisionTeams) {
+                auto button = std::make_shared<Button>(
+                    font,
+                    team.abbreviation,
+                    sf::Vector2f(currentX, currentY),
+                    sf::Vector2f(buttonWidth - horizontalPadding, buttonHeight),
+                    theme.buttonColor,
+                    theme.instructionTextColor
+                );
+
+                // Load team logo
+                sf::Texture* texture = new sf::Texture();  // Store texture dynamically
+                if (ResourceManager::getInstance().loadTexture(team.logo_path, *texture)) {
+                    button->setIcon(*texture);
+                    buttonTextures.push_back(std::unique_ptr<sf::Texture>(texture)); // Store the texture
+                } else {
+                    std::cerr << "Failed to load texture for team: " << team.name << " from path: " << team.logo_path << std::endl; // Debug message
+                }
+
+                button->setCallback([this, teamId = team.id]() {
+                    handleTeamSelection(teamId);
+                });
+
+                teamButtons.push_back({team.id, button});
+                currentX += buttonWidth;
+            }
+            
+            currentY += DIVISION_ROW_HEIGHT;
+            rowIndex++;
+        }
+    }
+
+    // Add gap between conferences
+    currentY += CONFERENCE_GAP;
+
+    // Create buttons for Western Conference
+    if (groupedTeams.count("Western")) {
+        for (const auto& [division, divisionTeams] : groupedTeams["Western"]) {
+            float currentX = 50.0f;  // Start 50px from left edge
+            
+            for (const auto& team : divisionTeams) {
+                auto button = std::make_shared<Button>(
+                    font,
+                    team.abbreviation,
+                    sf::Vector2f(currentX, currentY),
+                    sf::Vector2f(buttonWidth - horizontalPadding, buttonHeight),
+                    theme.buttonColor,
+                    theme.instructionTextColor
+                );
+
+                // Load team logo
+                sf::Texture* texture = new sf::Texture();  // Store texture dynamically
+                if (ResourceManager::getInstance().loadTexture(team.logo_path, *texture)) {
+                    button->setIcon(*texture);
+                    buttonTextures.push_back(std::unique_ptr<sf::Texture>(texture)); // Store the texture
+                } else {
+                    std::cerr << "Failed to load texture for team: " << team.name << " from path: " << team.logo_path << std::endl; // Debug message
+                }
+
+                button->setCallback([this, teamId = team.id]() {
+                    handleTeamSelection(teamId);
+                });
+
+                teamButtons.push_back({team.id, button});
+                currentX += buttonWidth;
+            }
+            
+            currentY += DIVISION_ROW_HEIGHT;
+        }
+    }
+}
+
 void WhoHePlayFor::handleEvent(const sf::Event& event) {
-    // Handle events when the game has ended
     if (gameState == GameState::Ending) {
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Enter) {
-                resetGame(); // Restart the game
+                resetGame();
             } else if (event.key.code == sf::Keyboard::Escape) {
-                gameState = GameState::Ended; // Exit to main menu
+                gameState = GameState::Ended;
             }
-        }
-        return; // Exit early since no further handling is needed
-    }
-
-    // Handle quit confirmation logic
-    if (quitConfirmation) {
-        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-            instructionLabel.setText("Exiting to the menu...");
-            gameState = GameState::Ended;
-        } else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-            quitConfirmation = false;
-            instructionLabel.setText("Rank this player (1-10). Press Enter to confirm, ESC to quit.");
         }
         return;
     }
 
-    //// Handle normal game events
-    //if (event.type == sf::Event::TextEntered) {
-    //    if (std::isdigit(event.text.unicode)) {
-    //        userInput += static_cast<char>(event.text.unicode);
-    //    } else if (event.text.unicode == '\b' && !userInput.empty()) {
-    //        userInput.pop_back();
-    //    }
-    //} else if (event.type == sf::Event::KeyPressed) {
-    //    if (event.key.code == sf::Keyboard::Enter) {
-    //        int rank;
-    //        std::string errorMsg;
-    //        if (isValidInput(userInput, rank, errorMsg)) {
-    //            if (rankings.count(rank)) {
-    //                errorLabel.setText("Rank " + std::to_string(rank) + " is already occupied! Please choose another rank.");
-    //                errorClock.restart();
-    //            } else {
-    //                rankings[rank] = std::make_shared<Player>(players[currentPlayerIndex]);
-    //                currentPlayerIndex++;
-    //                loadNextPlayer();
-    //            }
-    //            userInput.clear();
-    //        } else {
-    //            errorLabel.setText(errorMsg);
-    //            errorClock.restart();
-    //        }
-    //    } else if (event.key.code == sf::Keyboard::Escape) {
-    //        quitConfirmation = true;
-    //        instructionLabel.setText("Are you sure you want to quit? Press Enter to confirm, ESC to cancel.");
-    //    }
-    //}
+    // Use the existing Button class's click detection
+    if (event.type == sf::Event::MouseButtonPressed) {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        
+        for (const auto& [teamId, button] : teamButtons) {
+            if (button->isClicked(event, mousePos)) {
+                button->triggerCallback();
+                break;
+            }
+        }
+    }
+}
+
+void WhoHePlayFor::handleTeamSelection(const std::string& selectedTeamId) {
+    const Player& currentPlayer = players[currentPlayerIndex];
+    
+    if (selectedTeamId == currentPlayer.getTeamId()) {
+        // Correct answer
+        errorLabel.setText("Correct! " + currentPlayer.getFullName() + 
+                         " plays for " + currentPlayer.getTeam().name);
+        currentPlayerIndex++;
+        loadNextPlayer();
+    } else {
+        // Wrong answer
+        errorLabel.setText("Wrong! Try again!");
+    }
+    errorClock.restart();
 }
 
 void WhoHePlayFor::render(sf::RenderWindow& window) {
-    // Render Labels
-    unsigned int textSize = (gameState == GameState::Ending or quitConfirmation) ? 30 : 24;
-    sf::Uint32 textStyle = (gameState == GameState::Ending or quitConfirmation) ? sf::Text::Bold : sf::Text::Regular;
-    instructionLabel.setSize(textSize);
-    instructionLabel.setStyle(textStyle);
+    // Render labels
     instructionLabel.render(window);
-    //inputLabel.setText("Your Input (press enter to confirm): " + userInput);
-    //inputLabel.render(window);
-
-    if (errorClock.getElapsedTime().asSeconds() < 3.0f && !errorLabel.getText().empty()) {
+    
+    if (errorClock.getElapsedTime().asSeconds() < 3.0f) {
         errorLabel.render(window);
     }
 
-    // Render player sprite and rankings
+    // Render player sprite
     window.draw(currentPlayerSprite);
+
+    // Render team buttons using existing Button class
+    for (const auto& [teamId, button] : teamButtons) {
+        button->render(window);
+    }
 }
 
 void WhoHePlayFor::updateTheme() {
-    GameBase::updateTheme();  // Call base class implementation
-    // Add any WhoHePlayFor-specific theme updates here
+    GameBase::updateTheme();
+    const auto& theme = ThemeManager::getInstance().getThemeConfig();
+    
+    for (const auto& [teamId, button] : teamButtons) {
+        button->setDefaultTheme(theme);
+    }
 }

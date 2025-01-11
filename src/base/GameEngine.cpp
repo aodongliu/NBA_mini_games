@@ -7,16 +7,16 @@ GameEngine::GameEngine(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     mainMenu = std::make_shared<MainMenu>(window, font);
     rankingGame = std::make_shared<RankingGame>(window, font);
     whoHePlayFor = std::make_shared<WhoHePlayFor>(window, font);
-    // Intialize main menu
+    
+    // Initialize main menu
     mainMenu->addOption("Play Ranking Game", [this]() {
         rankingGame->resetGame();
         setState(rankingGame); // Transition to RankingGame
     });
     
     mainMenu->addOption("Who He Play For", [this]() {
-        setState(mainMenu);
-        //whoHePlayFor->resetGame();
-        //setState(whoHePlayFor); 
+        whoHePlayFor->resetGame();
+        setState(whoHePlayFor); // Transition to WhoHePlayFor game
     });
 
     mainMenu->addOption("Quit", [&]() {
@@ -25,7 +25,6 @@ GameEngine::GameEngine(sf::RenderWindow& window, std::shared_ptr<sf::Font> font)
     
     // Set initial state
     setState(mainMenu);
-    
 }
 
 void GameEngine::setState(const std::shared_ptr<WindowBase>& newState) {

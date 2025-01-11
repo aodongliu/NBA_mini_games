@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <memory>
 #include <stdexcept>  // for std::runtime_error
 
@@ -15,8 +15,8 @@ public:
 
 private:
     ResourceManager() = default;
-    std::unordered_map<std::string, std::weak_ptr<sf::Texture>> textureCache;
-    std::unordered_map<std::string, std::shared_ptr<sf::Font>> fonts;
+    std::map<std::string, sf::Texture> textureCache;
+    std::map<std::string, std::shared_ptr<sf::Font>> fonts;
 };
 
 // Define a simple exception class for resource loading errors
